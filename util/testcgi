@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# $Id: testcgi,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+# no arguments in CGI mode
+PROG="./web500gw"
+
+GATEWAY_INTERFACE="CGI/1.1";         export GATEWAY_INTERFACE
+SERVER_PROTOCOL="HTTP/1.0";          export SERVER_PROTOCOL
+REQUEST_METHOD="GET";                export REQUEST_METHOD
+SCRIPT_NAME="/cgi-bin/nph-web500gw"; export SCRIPT_NAME
+
+if [ "x`echo -n`" = "x-n" ]; then
+    ECHO=echo
+    END="\c"
+else
+    ECHO="echo -n"
+    END=""
+fi
+
+$ECHO "Debug level (0-255) [0]: $END"
+read debug
+WEB500GW_DEBUG=$debug; export WEB500GW_DEBUG
+
+$ECHO "REMOTE_HOST [localhost]: $END"
+read remote
+if [ "x$remote" = "x" ]; then
+    remote="localhost"
+fi
+REMOTE_HOST=$remote; export REMOTE_HOST
+
+$ECHO "PATH_INFO [/M]: $END"
+read path
+if [ "x$path" = "x" ]; then
+    path="/M"
+fi
+PATH_INFO=$path; export PATH_INFO
+
+$ECHO "QUERY_STRING []: $END"
+read query
+QUERY_STRING=$query; export QUERY_STRING
+
+echo "Starting $PROG ..."
+$PROG

@@ -1,0 +1,166 @@
+.\"
+.\" $Id: web500gw.8,v 1.3 2001/04/26 22:30:40 dekarl Exp $
+.\"
+.TH WEB500GW 8C "February 1998" "TU Chemnitz, Germany"
+.SH NAME
+web500gw \- World Wide Web to LDAP / X.500 gateway
+.SH SYNOPSIS
+.B INSTDIR/web500gw [\-I] [\-p port] [\-P ldapport] 
+.B [\-x ldaphost] [\-l] [\-a] [\-s default_language]
+.B [\-e etcdir] [\-c configfile] [\-t urlpath]
+.B [\-d web500gw_debuglevel] [\-D LDAP_debuglevel] [\-v]
+.SH DESCRIPTION
+.I web500gw
+is a World Wide Web to X.500 gateway daemon.
+It speaks HTTP (Hypertext Transfer Protocol) on one side and LDAPv2
+on the other.  
+It presents the X.500 DIT as a tree of menus,
+search forms, and documents in HTML, supporting browsing, searching and, 
+experimental, modifying of X.500 via a WWW client.  
+By default, it listens on port 8888 for connections from WWW clients.
+.LP
+What you are trying to set up looks like this:
+.LP
+.nf
+.ft tt
+ ------          ----------          ------ <-Stand-
+| WWW  |        | HTTP to  |        |LDAP  |  alone ________
+|client|<-HTTP->| LDAP g/w |<-LDAP->|server|   or  |X.500DSA|
+|______|        |__________|        |______|<-DAP->|________|
+                  web500gw        ldapd/slapd
+.ft
+.fi
+.LP
+The web500gw server can be run either as stand-alone server,
+as nph-CGI program or from inetd
+.SH STAND-ALONE OPERATION
+It is recommended to start web500gw as a stand-alone server. 
+Simply start it with no arguments
+.LP
+.nf
+.ft tt
+	INSTDIR/web500gw
+.ft
+.fi
+.LP
+If you would like to start it at boot time add some lines like this to
+the /etc/rc.local or equivalent file:
+.LP
+.nf
+.ft tt
+	if [ -f INSTDIR/web500gw ]; then
+		INSTDIR/web500gw; echo ' web500gw'
+	fi
+.ft
+.fi
+.SH OPERATION WITH INETD
+To arrange to have web500gw started from inetd, the Internet protocol
+daemon, add a line like the following to your /etc/services
+file, or the equivalent:
+.LP
+.nf
+    web500gw           8888/tcp        web500gw
+.fi
+.LP
+Next, add a line like this to your /etc/inetd.conf file, or the
+equivalent:
+.LP
+.nf
+    web500gw  stream  tcp  nowait  nobody  INSTDIR/web500gw    web500gw -I
+.fi
+.LP
+For these changes to take effect with inetd, you will probably have
+to send it it a HUP signal.  See inetd(8) for more details.
+.SH WWW CONFIGURATION
+The next step is to tell your WWW client how to access web500gw.
+For testing purposes you specify the URL to follow. Later you should 
+write a HTML document containing a (some) link(s) to X.500 data via web500gw.
+Some example URL's are given below, with the things you should
+change given in <>'s:
+.LP
+.nf
+   http://<host.running.web500gw>:8888/
+            - List (Menu) on root level
+   http://<host.running.web500gw>:8888/c=DE
+            - List on c=DE level
+   http://<host.running.web500gw>:8888/o=Technische Universitaet Chemnitz-Zwickau, c=DE
+            - Read entry
+   http://<host.running.web500gw>:8888/H
+            - Help page
+.fi
+.LP
+.SH OPTIONS
+.TP
+.B \-a
+Search aliases when doing X.500 searches.  The default is not to
+search aliases.
+.TP
+.B \-c configfile
+Specify an alternate common configuration file. 
+.TP
+.B \-d level
+Turn on web500gw's debugging as defined by
+.I level.
+If this option is specified,
+.I web500gw
+will not fork or disassociate from the invoking terminal.  Some general
+operation and status messages are printed for any value of \fIlevel\fP.
+\fIlevel\fP is taken as a bit string, with each bit corresponding to a
+different kind of debugging information.  See \fIweb500 -v\fP
+for details.
+.TP
+.B \-D level
+Turn on LDAP's debugging as defined by
+.I level.
+If this option is specified,
+.I web500gw
+will not fork or disassociate from the invoking terminal.
+.TP
+.B \-e etcdir
+Specify an alternate directory containing template/filter/help files.
+.TP
+.B \-l
+Enable logging of various status and errors to the LOG_LOCAL3 facility via
+syslog(8). The format of the log entries is configurable, see the
+Website below for details.
+.TP
+.B \-p port
+Specify an alternate port on which to listen for connections from Web
+clients.
+.TP
+.B \-P ldapport
+Specify an alternate port on which to contact the LDAP server.
+.TP
+.B \-s default_language
+Specify an alternate default language.
+.TP
+.B \-t urlpath
+Testmode, prints out the HTML page for this URL and exists.
+.TP
+.B \-v
+Prints Copyright, version, configuration, and usage information and exits.
+.TP
+.B \-x ldaphost
+Specify an alternate host on which the ldap server is running.
+.TP
+.B \-I
+Run from inetd(8).
+.SH NOTES
+Some implementations of inetd have a small limit on the number of arguments
+that can be specified in the /etc/inetd.conf(5) file.  This can cause
+problems if you are using web500gw with a lot of arguments.
+.LP
+The default values for most of the options can be set within
+the common configuration file WEB500GWDIR/web500gw.conf, see
+the Website below for details.
+.SH "SEE ALSO"
+.BR ldap(3),
+.BR ldap_getfilter(3),
+.BR inetd(8),
+.BR go500gw(8)
+.LP
+.nf
+.ft B
+Online documentation: http://web500gw.sourceforge.net/
+.ft
+.fi

@@ -1,0 +1,126 @@
+<HTML>
+<HEAD>
+<TITLE>Web500gw: Hilfe</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#006600" VLINK="#003300" ALINK="#00FF00">
+
+<!--
+   - $Id: web500gw.help.de,v 1.3 2001/04/26 22:30:40 dekarl Exp $
+  -->
+
+<H1 ALIGN=center> WWW/HTTP - X.500/LDAP Gateway HILFE</H1>
+
+<STRONG><FONT COLOR="#006600">Web500gw</FONT></STRONG>
+ist ein World Wide Web/HTTP - X.500/LDAP Gateway 
+(Version 2.1).
+&Uuml;ber dieses Gateway wird WWW-Browsern der Zugriff auf 
+LDAP basierte Directories erm&ouml;glicht.
+
+<H2>Fähigkeiten von web500gw</H2>
+<EM>Bitte beachten Sie: Aufgrund von Zugriffsbeschränkungen können Sie 
+möglicherweise nicht alle Fähigkeiten nutzen!</EM>
+<DL>
+<DT><STRONG>Lesen von Directory-Einträgen</STRONG><DD>
+    Ausgewählte Attribute eines Eintrages werden dargestellt, einige
+    mit Sonderfunktionen:
+    <UL>
+    <LI>Ein Attribut, das auf einen anderen Directory-Eintrag
+     verweist (<STRONG>see Also, roleOccupant</STRONG>), wird als Hypertext Link
+     auf diesen dargestellt.
+    <LI>Ein Attribut mit einer E-Mail-Adresse kann mit einer
+      "E-Mail-Aktion" (<STRONG>mailto:</STRONG>) verknüpft sein.
+    <LI>Attribute, die einen URL (URI) enthalten, sind natürlich
+     Hypertext Links zu diesem URL (URI).
+    <LI>Photos werden entweder als Inline-Bilder dargestellt oder
+     via Link abrufbar (JPEG-Photos als JPEG- oder GIF-Bilder,
+     G3-Fax-Photos als GIF-Bilder).
+    <LI>Audio-Daten sind via Link abrufbar.
+    <LI>Für Personen-Daten können vCard-Visitenkarten abgerufen werden, um
+        die Daten mit modernen WWW-Browsern in das persönliche Adreßbuch
+        zu übernehmen.
+    </UL>
+Abhängig von der Konfiguration sind weitergehende Aktionen verfügbar,
+z.B. Links ("Mehr Attribute anzeigen") oder Suchaktionen (z.B. Listen).
+
+<DT><STRONG>Browsen</STRONG><DD>
+    Verf&uuml;gbaren Eintr&auml;ge unter einem Knoten können als 
+    Hypertext-Links aufgelistet werden, sortiert nach dem Eintrags-Typ 
+    (Objektklasse). 
+    Spezielle Attribute (z.B. <STRONG>Beschreibung</STRONG>) können zusammen
+    mit dem Directory-Namen angezeigt werden (Konfigurierbar im Gateway
+    oder via URL). Eine "Steige auf zu" Liste oder ein Menü erlauben das
+    Aufsteigen im Directory-Baum.
+
+<DT><STRONG><A NAME="search">Suchen</A></STRONG><DD>
+    In vielen Seiten finden Sie ein Eingabefeld, in das ein Suchbegriff
+    eingegeben werden kann. Mit den Knöpfen kann die Suche veranlaßt
+    oder die Eingabe gelöscht werden.
+
+<P>  Auf den oberen Levels der X.500 Hierarchie (Root oder L&auml;nder) wird 
+    <STRONG>einstufig</STRONG> nach L&auml;ndern/Organisationen/Localities, 
+    ab Organisationen wird im <STRONG>gesamten Teilbaum</STRONG> nach Personen gesucht.
+    Dieses Standard-Suchverhalten ist  durch den Administrator des
+    Gateways konfigurierbar.
+
+<P>Unterstützt wird auch die <EM>User friendly name (UFN)</EM> Suche.
+   Geben Sie hierzu den Suchbegriff wie folgt an:
+<BLOCKQUOTE>
+  <TT>Name, Organsation, Land</TT>
+</BLOCKQUOTE>
+
+<DT><STRONG>Modifizieren</STRONG><DD>
+    Um einen Eintrag zu ändern, müssen Sie sich durch Ihr Directory-Paßwort
+    authentifizieren. Zur Zeit ist nur <EM>Simple Authentication</EM>
+    unterstützt (einfaches Paßwort). Es ist auch möglich, als
+    authentifizierter DS-Manager einen anderen Eintrag zu modifizieren.
+    Nach erfolgreicher Authentifizierung erhalten Sie ein Formular mit
+    den modifizierbaren Attributen.
+</DL>
+
+Weitere Informationen finden Sie in der 
+<A HREF="http://web500gw.sourceforge.net/"><STRONG>Web500gw
+Online Dokumentation</STRONG></A>.
+<P>
+<HR>
+<P>
+<STRONG><FONT COLOR="#006600">Web500gw</FONT></STRONG> wird von 
+<A HREF="/cn=Frank%20Richter,ou=Rechenzentrum,o=Technische%20Universitaet%20Chemnitz,c=DE">
+Frank Richter</A>, Technische Universit&auml;t Chemnitz entwickelt. 
+Es basiert auf dem Gopher - LDAP Gateway (go500gw) 
+Implementierung von Tim Howes.
+Erweiterungen stammen von Mark Smith,
+<A HREF="/cn%3d%22Rakesh%20Patel%20%2bRP6%2b%22%2c%20ou%3dComputing%20Services%2c%20ou%3dFaculty%20and%20Staff%20Directory%2c%20o%3dRutgers%20University%2c%20st%3dNew%20Jersey%2c%20c%3dUS">
+Rakesh Patel</A>, Rutgers University und
+<A 
+HREF="/cn%3dHallvard%20B%20Furuseth%2c%20ou%3dUniversitetets%20Senter%20for%20In
+formasjonsteknologi%2c%20o%3dUniversitetet%20i%20Oslo%2c%20c%3dNO">
+Hallvard B Furuseth</A>, Universität Oslo.
+Von vielen anderen kamen Patches, Reports, Anregungen und Fragen - vielen
+Dank daf&uuml;r!
+<P>
+Wenn Sie Fragen, Anregungen, W&uuml;nsche zu diesem Gateway haben, senden 
+Sie bitte eine E-Mail an 
+<A HREF="mailto:Frank.Richter@Hrz.TU-Chemnitz.DE">
+Frank.Richter@Hrz.TU-Chemnitz.DE</A>.
+
+<P><STRONG>Zur Beachtung: Der Autor ist nicht verantwortlich für 
+die Vollständigkeit oder Richtigkeit der Daten im Directory
+System!</STRONG>
+<P>
+Weitere Informationen zu Directories, X.500 und LDAP finden Sie hier:
+<UL>
+<LI><A HREF="http://www.bath.ac.uk/~ccsap/Directory/x500.html">Directory
+    Services Seiten der Bath University</A>
+<LI><A HREF="http://www.nexor.co.uk/public/directory.html">Informationen 
+    zu X.500 bei NEXOR</A>
+<LI><A HREF="http://www.umich.edu/~dirsvcs/ldap/">Informationen zu
+    LDAP an der University of Michigan</A>
+</UL>
+<P>
+<HR>
+<A HREF="/cn=Frank%20Richter,%20ou=Rechenzentrum,%20o=Technische%20Universitaet%20Chemnitz,c=DE"> Frank Richter</A>,
+<A HREF="/o=Technische%20Universitaet%20Chemnitz,c=DE"> 
+Technische Universit&auml;t Chemnitz</A>, 
+<A HREF="/c=DE">Deutschland</A>
+</BODY>
+</HTML>

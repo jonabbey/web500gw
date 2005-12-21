@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# $Id: tester,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+LC_CTYPE="C"; export LC_CTYPE
+unset LANG
+
+TESTURLS='/M /M?mail,postalAddress?S=(cn~=richter) /M?$list 
+          /M?mail,postalAddress$list 
+          /M?mail,postalAddress$list?S=(cn~=richter) /c=DE /abcd'
+
+for i in $TESTURLS; do
+    echo "########## $i"
+    ./web500gw -x x500 -d 1 -e ./etc -t $i | weblint -x netscape -
+    echo
+done

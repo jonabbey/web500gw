@@ -1,0 +1,35 @@
+ *                  web500gw.c, Version 2.1: 
+ *
+ *               A WWW - LDAP (X.500) gateway
+ *
+ * written by: Frank Richter, Frank.Richter@hrz.tu-chemnitz.de
+ *
+ * Copyright (c) 1994-1998 Chemnitz University of Technology.
+ * All rights reserved.
+
+Check the online documentation:
+    http://web500gw.sourceforge.net/
+
+This directory contains the source for a World Wide Web/HTTP 
+to LDAP/X.500 gateway (web500gw).
+
+
+The program uses the LDAP protocol to talk to X.500.  You will need 
+to have the LDAP-3.3/OpenLDAP 1.0 libraries on hand to be able to make 
+this software.
+    OpenLDAP:        http://www.openldap.org/
+    Umich LDAP 3.3:  ftp://terminator.rs.itd.umich.edu/x500/ldap/
+
+What you are trying to set up looks like this:
+
+ --------            =================            -------- (         --------
+|  WWW   |          | WWWeb to | LDAP |          | LDAP   |(        | X.500  |
+|Browser |<- HTTP ->| LDAP g/w | API  |<- LDAP ->| server |(- DAP ->| server |
+|________|          |__________|______|          |________|(        |________|
+                      web500gw                     ldapd   (
+
+
+See INSTALL for installation hints.
+
+Frank.Richter@hrz.tu-chemnitz.de
+

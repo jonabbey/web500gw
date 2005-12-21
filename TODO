@@ -1,0 +1,25 @@
+                .....This is a To Do list.....
+
+Some wishes/suggestions from me, our users and from you, the net:
+
+* LDAPv3, Unicode
+* fields to be select lists in the web500 add and modify forms
+* Bind via Basic Authentication 
+* Check the MODIFY feature:
+	- userPassword goes as clear text over the line ?? 
+    - File upload to add picture
++ Binary / RPM distribution
+* searchprefs
+* web500gw as Apache module - part of PHP?
+* Caching ???
+* Better vCard handling
+* As another suggestion: (although this might be a bit much...)
+  in a form where an attribute is a DN (such as Manager) the user
+  should not have to type in the DN.  There should be some sort  
+  of Browse... button (or something similar) that would let him  
+  choose the right DN.
+
+
+If you have further suggestions, feel free ...
+
+Frank.Richter@hrz.tu-chemnitz.de

@@ -1,0 +1,172 @@
+<HTML>
+<HEAD>
+<TITLE>web500gw - Help on X.500 Attributes</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#006600" VLINK="#003300"
+ALINK="#00FF00">
+
+<!-- Part of web500gw, a X.500 - WWW - Gateway
+   - see http://web500gw.sourceforge.net/
+   - Frank Richter <Frank.Richter@hrz.tu-chemnitz.de> 1996
+   -
+   - $Id: web500gw.attr,v 1.3 2001/04/26 22:30:40 dekarl Exp $
+  -->
+
+<H1>web500gw - Help on X.500 Attributes</H1>
+<HR>
+
+
+<A NAME="cn"><H2>Name</H2></A>
+<B>Cannot be changed here!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>commonName, cn</TT>
+<DT><B>Description</B><DD> Name and Surname
+<DT><B>Format</B><DD> String, unfortunately no umlauts...
+<DT><B>Example</B><DD><TT>Joe Bloggs</TT>
+</DL>
+<HR>
+<A NAME="personalTitle"><H2>Title</H2></A>
+<B>Free entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>personalTitle</TT>
+<DT><B>Description</B><DD> Academic Title, descriptive shortcut
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>PhD.-BSc.</TT>
+</DL>
+<HR>
+
+<A NAME="telephoneNumber"><H2>Telephone Number</H2></A>
+<B>Please supply, if available!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>telephoneNumber</TT>
+<DT><B>Description</B><DD>Work Telephone No.
+<DT><B>Format</B><DD> <TT>+44 XXX XXX XXXX</TT>
+<DT><B>Example</B><DD><TT>+44 171 555 1234</TT>
+</DL>
+<HR>
+
+<A NAME="facsimileTelephoneNumber"><H2>Fax Number</H2></A>
+<B>Inherited from Subject/Entity, not (yet) here changeable! - we're working on it...</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>facsimileTelephoneNumber</TT>
+<DT><B>Description</B><DD>Work fax number
+<DT><B>Format</B><DD> <TT>+44 XXX XXX XXXX</TT>
+<DT><B>Example</B><DD><TT>+44 171 555 1235</TT>
+</DL>
+<HR>
+
+<A NAME="postalAddress"><H2>Postal Address</H2></A>
+<B>Inherited from Subject/Entity, not changeable here!/B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>postalAddress</TT>
+<DT><B>Description</B><DD>Work Address
+<DT><B>Format</B><DD> String, multiple lines
+
+<DT><B>Format</B><DD> <TT>+44 XXX XXX XXXX</TT>
+<DT><B>Example</B><DD><TT>+44 171 555 1236</TT>
+</DL>
+<HR>
+
+<A NAME="mail"><H2>E-Mail</H2></A>
+<B>Please supply, if available!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>mail</TT>
+<DT><B>Description</B><DD> Personal Electronic Mail Address
+<DT><B>Format</B><DD> Zeichenkette <TT>(User@Domain)</TT>
+<DT><B>Example</B><DD><TT>Joe.Bloggs@computing.summertime.ac.uk</TT>
+</DL>
+<HR>
+
+<A NAME="ou"><H2>Ogranizational Unit</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>organizationalUnit</TT>
+<DT><B>Desctiption</B><DD> Faculty, Unit, Project
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>School of Computing</TT>
+</DL>
+
+<HR>
+<A NAME="description"><H2>Work Field/Interests</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>description</TT>
+<DT><B>Description</B><DD> Work and Research fields, Interests
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>Programming languages</TT>
+		<DD><TT>Data structures</TT>
+</DL>
+<HR>
+
+<A NAME="info"><H2>Further Information</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>info</TT>
+<DT><B>Description</B><DD>Additional information for a person
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>Just testing my new compiler</TT>
+</DL>
+<HR>
+
+<A NAME="roomNumber"><H2>Room Number</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>roomNumber</TT>
+<DT><B>Description</B><DD> Room number
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>1/123c</TT>
+</DL>
+<HR>
+
+<A NAME="organizationalStatus"><H2>Status</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>organizationalStatus</TT>
+<DT><B>Description</B><DD> Departmental status
+<DT><B>Format</B><DD> String, if student please <TT>Student
+in.-year</TT>
+<DT><B>Example</B><DD><TT>Student 91</TT>
+</DL>
+<HR>
+
+<A NAME="uid"><H2>Login name</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>uid</TT>
+<DT><B>Description</B><DD> Login name (network user id)
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>joey</TT>
+</DL>
+<HR>
+
+<A NAME="homePostalAddress"><H2>Home Address</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>homePostalAddress</TT>
+<DT><B>Description</B><DD> Home Address
+<DT><B>Format</B><DD> String, multiple lines
+<DT><B>Description</B><DD><TT>123 Park way</TT>
+            <DD><TT>WX1 2AB London</TT>
+</DL>
+<HR>
+
+<A NAME="homePhone"><H2>Home Telephone Number</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>homePhone</TT>
+<DT><B>Description</B><DD> Home telephone number
+<DT><B>Format</B><DD> +44 Area code Number
+<DT><B>Example</B><DD><TT>+44 171 123 4567</TT>
+</DL>
+<HR>
+
+<A NAME="drink"><H2>Favourite Drink</H2></A>
+<B>Free Entry!</B>
+<DL>
+<DT><B>X.500 Attribute name</B><DD><TT>drink</TT>
+<DT><B>Description</B><DD> What one likes to dring. Not allways, but ...
+<DT><B>Format</B><DD> String
+<DT><B>Example</B><DD><TT>Calders bitter</TT>
+</DL>
+</BODY>
+</HTML>

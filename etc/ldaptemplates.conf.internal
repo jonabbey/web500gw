@@ -1,0 +1,544 @@
+#
+# LDAP display templates for local - internal hosts:
+# More attributes, Modify allowed and template for adding a person
+#
+# $Id: ldaptemplates.conf.internal,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+# Version must be 1
+Version 1
+
+# Person template
+"Person"
+"People"
+"person icon"
+# template options
+""
+# objectclass list
+person
+END
+# name of attribute to authenticate as
+"self|manager"
+# default attribute name to use when forming RDN of a new entry
+cn
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# list of items for display
+# valid types are:
+#    cis    - case ignore string
+#    mls    - multiline string
+#    dn     -
+#    mail   - case ignore string that contains an RFC822 mail address
+#    bool   - boolean value
+#    jpeg   - inlined JPEG image
+#    jpegbtn    - JPEG image button
+#    fax    - inlined Fax image
+#    faxbtn - Fax image button
+#    audiobtn   - audio button
+#    time   - time value
+#    date   - time value displayed as a date only
+#    url    - labeled URL for links to items in WWW
+#    searchact  - search action
+#    linkact    - link to another template
+#
+# valid options (comma separated list appended to the type) are:
+#  ro       - attribute is read only; don't let user edit it
+#  sort     - order the values of this attribute
+#  1val     - disallow entry of multiple values
+#  required - this attribute should have at least one value
+#  hide     - don't show this item if attribute has no values
+#  hideiffalse  - hide item if value is FALSE (for type 'bool' only)
+
+item jpeg	    jpegPhoto           jpegPhoto	"Next Photo"
+item faxbtn     photo photo
+item audiobtn	audio audio
+item cis,sort,1val	personalTitle	personalTitle
+samerow
+item cis,sort,ro	cn  cn
+item cis            ou  ou
+item mls,1val,ro	postalAddress       postalAddress
+item cis	        telephoneNumber		telephoneNumber
+#item cis	pager                       pager
+item cis	facsimileTelephoneNumber    facsimileTelephoneNumber
+item mail,required	mail                        mail
+item url    labeledURI                  labeledURI
+item cis    roomNumber                  roomNumber
+item cis,ro,required	uid                         uid
+item cis	person-description          description
+item cis    info                        info
+#item cis,1val   pGPKey                  pGPKey
+# item cis   pGPKeyRev                  pGPKeyRev
+#item cis,1val   pGPKeyID                pGPKeyID
+#item cis,1val   pGPUserID               pGPUserID
+#item url        pGPKeyURL               pGPKeyURL
+item mls,1val	homePostalAddress		homePostalAddress
+item cis	    homePhone               homePhone
+item cis        drink                   drink
+item cis,ro     l                       l
+item cis,ro     organization            o
+item dn,sort,ro seeAlso         		seeAlso
+item bool,hideiffalse       pager    pager
+item linkact vCard                  vcard  "?vcard"
+item linkact "more attributes"       "" "?$tmpl=Person (more)"
+# item linkact "pgp infos"           "" "?$tmpl=Person (pgp)"
+item linkact modify                 modify "?$bind,tmpl=Person"
+item linkact delete  "" "?$bind,deleteform,tmpl=Person"
+item linkact modrdn  "" "?$bind,modrdnform,tmpl=Person"
+END
+
+# vCard template for pseudo objectclass web500gw_vcard
+"vCard"
+"vCard"
+""
+""
+# objectclass list
+web500gw_vcard
+END
+""
+""
+""
+END
+# list of items for display
+# only cis, mls, mail, time, date, url sould occure for vCard
+# Labels should be according to the vCard spec.
+# They are NOT substituted by friendlyfile
+
+item cis,1val	FN      cn
+item cis	    TITLE	personalTitle
+item mls	    "ADR;TYPE=WORK"    postalAddress
+item cis	    "TEL;VOICE;WORK"   telephoneNumber
+item cis	    "TEL;FAX;WORK"     facsimileTelephoneNumber
+item cis        ORG                o
+samerow
+item cis        ORG                ou
+item mail	    "EMAIL;PREF;INTERNET" mail
+item url,1val,sort    URL                   labeledURI
+item mls	    "ADR;TYPE=HOME"		  homePostalAddress
+item cis	    "TEL;VOICE;HOME"      homePhone
+item cis        NOTE                  description
+END
+
+
+# PGP attributes of a person - experimental
+"Person (pgp)"
+"People"
+""
+person
+END
+""
+""
+""
+END
+item cis   pGPKey       pGPKey
+item cis   pGPKeyRev    pGPKeyRev
+item cis   pGPKeyID     pGPKeyID
+item cis   pGPUserID    pGPUserID
+item url   pGPKeyURL    pGPKeyURL
+item linkact    "normal attributes" "" "?$tmpl=Person"
+END
+
+# Further attributes of a person
+"Person (more)"
+"People"
+"all icon"
+altview
+person
+END
+""
+""
+""
+END
+item cis    organizationalStatus    organizationalStatus
+item cis    userClass               userClass
+item time   lastModifiedTime        lastModifiedTime
+item dn     lastModifiedBy          lastModifiedBy
+item linkact    "normal attributes" "" "?$tmpl=Person"
+END
+
+
+# Organization template
+"Organization"
+"Organizations"
+"organization icon"
+""
+organization
+END
+""
+o
+""
+constant	"o"	"foo"
+END
+# list of items for display
+item jpeg   jpegPhoto      jpegPhoto   "Next Photo"
+item faxbtn     photo       photo
+item audiobtn   audio       audio
+item cis,sort   name      o
+item cis        l           l
+item mls	postalAddress   postalAddress
+item cis	telephoneNumber telephoneNumber
+item cis	facsimileTelephoneNumber    facsimileTelephoneNumber
+item url    labeledURI      labeledURI
+item cis	description   description
+item cis    associatedDomain    associatedDomain
+item dn,sort    seeAlso         seeAlso
+item linkact "more attributes" "" "?$tmpl=Organization (more)"
+# samerow
+#item linkact  "list"  ""  "?description?O="
+# first organizationalunit, then others
+item searchact  "ou"  ""  "-dn" "O=(objectclass=organizationalunit)" "description,telephoneNumber" ""
+item searchact  "people"  ""  "-dn" "O=(!(objectclass=organizationalunit))" "description,mail" ""
+END
+
+# Further attributes of an organization
+"Organization (more)"
+"Organizations"
+"all icon"
+altview
+organization
+END
+""
+""
+""
+END
+item dn     manager             manager
+item dn     masterDSA           masterDSA
+item time   lastModifiedTime    lastModifiedTime
+item dn     lastModifiedBy      lastModifiedBy
+item linkact    "normal attributes" "" "?$tmpl=Organisation"
+END
+
+# Organizational Unit template
+"Organizational Unit"
+"Organizational Units"
+"organization icon"
+""
+organizationalUnit
+END
+"manager"
+cn
+""
+END
+# Item list
+item jpeg   jpegPhoto     jpegPhoto   "Next Photo"
+item faxbtn     photo       photo
+item audiobtn   audio       audio
+item cis,sort   name     ou
+item cis        l           l
+item mls        postalAddress   postalAddress
+item cis    telephoneNumber     telephoneNumber
+item cis    facsimileTelephoneNumber    facsimileTelephoneNumber
+item url    labeledURI      labeledURI
+item cis    description   description
+item cis    associatedDomain    associatedDomain
+item dn     seeAlso          seeAlso
+item dn     manager          manager
+item linkact  tel-mail-dir "" "?telephonenumber,mail,vcard$btable,valsonly,entryonly?"
+item linkact  add "" "?$bind,addform,tmpl=Person-add"
+item linkact  modify "" "?$bind,tmpl=Organizational Unit"
+item searchact  list  ""  "-dn" "O=" "description" ""
+END
+
+# Service template
+"Service"
+"Services"
+"service icon"
+# template options
+""
+# objectclass list
+service
+END
+# name of attribute to authenticate as
+"owner"
+# default attribute name to use when forming RDN of a new entry
+cn
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+addersdn	"owner"
+END
+# list of items for display
+item jpegbtn	jpegPhoto           jpegPhoto
+item cis,sort	cn                  cn
+item mls	multilineDescription    multilineDescription
+item cis	provider                provider
+item cis,sort	serviceArea		    serviceArea
+item mail	mail            	    mail
+item cis	telephoneNumber        telephoneNumber
+item cis	facsimileTelephoneNumber    facsimileTelephoneNumber
+item mls	postalAddress               postalAddress
+item cis	"Hours"			hoursOfOperation
+item url	labeledURL      labeledURL
+item dn,sort	"Depends On"		dependentUpon
+item dn,sort	seeAlso     	seeAlso
+item cis,sort	"Platform"		platform
+item cis,sort	"Product"		product
+item cis,sort	"Keywords"		keywords
+item cis	"FCE Rating"		serviceRating
+item date	"Date Rated"		ratingTime
+item mls	"Rating Description"	ratingDescription
+item time	"Last Modified"		lastModifiedTime
+item dn		"Modified By"		lastModifiedBy
+item dn,required,sort	"Owner"		owner
+END
+
+
+# Organizational Role template
+"Organizational Role"
+"Organizational Roles"
+"person icon"
+# template options
+""
+# objectclass list
+organizationalRole
+END
+# name of attribute to authenticate as
+""
+# default attribute name to use when forming RDN of a new entry
+cn
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# list of items for display
+item cis,sort	cn			cn
+item cis	    role-description    description
+item dn,sort    roleOccupant        roleOccupant
+item dn,sort	seeAlso             seeAlso
+END
+
+
+# Room template
+"Room"
+"Rooms"
+"room icon"
+# template options
+""
+# objectclass list
+room
+END
+# name of attribute to authenticate as
+""
+# default attribute name to use when forming RDN of a new entry
+cn
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# Item list
+item cis,sort	cn      cn
+item cis	room        roomNumber
+item cis	l           l
+item cis	description   description
+item cis    telephoneNumber telephoneNumber
+item cis    facsimileTelephoneNumber    facsimileTelephoneNumber
+END
+
+# Application Process template
+"Application Process"
+"Application Processes"
+"application icon"
+""
+applicationProcess
+END
+""
+cn
+""
+END
+item cis,sort   cn          cn
+item cis	    l           l
+item cis	description   description
+item searchact  "list"  ""  "-dn" "O=" "description" ""
+END
+
+# Application Entity template
+#"Application Entity"
+#"Application Entities"
+#"application icon"
+## template options
+#""
+## objectclass list
+#applicationEntity
+#END
+## name of attribute to authenticate as
+#""
+## default attribute name to use when forming RDN of a new entry
+#cn
+## default location when adding new entries
+#""
+## rules used to define default values for new entries
+#END
+## Item list
+#item cis,sort	cn  		cn
+#item cis	    l           l
+#item cis	description   description
+#END
+#
+
+
+# Country Template
+"Country"
+"Countries"
+"country icon"
+# template options
+""
+# objectclass list
+friendlyCountry
+country
+END
+# name of attribute to authenticate as
+""
+# default attribute name to use when forming RDN of a new entry
+c
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# Item list
+item cis,sort	co          co
+item cis	description   description
+item url    labeledURI  labeledURI
+item cis    associatedDomain    associatedDomain
+item searchact  "list"  ""  "-dn" "O=(!(objectclass=dSA))" "labeledURI" ""
+END
+
+# Locality template
+"Locality"
+"Localities"
+"locality icon"
+# template options
+""
+# objectclass list
+locality
+END
+# name of attribute to authenticate as
+""
+# default attribute name to use when forming RDN of a new entry
+l
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# Item list
+item cis	name 			l
+item cis    description     description
+item searchact  "list"  ""  "-dn" "O=(!(objectclass=dSA))" "description" ""
+END
+
+# Pseudo Root Template
+"World"
+""
+"world icon"
+# template options
+""
+# objectclass list
+root
+END
+# name of attribute to authenticate as
+""
+# default attribute name to use when forming RDN of a new entry
+c
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# Item list
+item searchact  "list"  ""  "-dn" "O=(!(objectclass=dSA))" "labeledURI" ""
+END
+
+
+# Generic template for pseudo objectclass "web500gw_generic"
+"Generic"
+"Generic"
+"generic icon"
+# template options
+""
+# objectclass list
+web500gw_generic
+END
+# name of attribute to authenticate as
+""
+# default attribute name to use when forming RDN of a new entry
+cn
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+END
+# list of items for display
+item jpeg   jpegPhoto       jpegPhoto   "Next Photo"
+item fax    photo           photo
+item audiobtn   audio       audio
+item cis,sort   name        cn
+samerow
+item cis,sort,1val  personalTitle  personalTitle
+item cis            ou             ou
+item mls    postalAddress          postalAddress
+item cis    telephoneNumber        telephoneNumber
+item cis    pager                  pager
+item cis    facsimileTelephoneNumber    facsimileTelephoneNumber
+item mail   mail                        mail
+item url    labeledURI                  labeledURI
+item cis    roomNumber                  roomNumber
+item cis    uid                         uid
+item cis    person-description          description
+item cis    info                        info
+item mls    homePostalAddress           homePostalAddress
+item cis    homePhone                   homePhone
+item cis    drink                       drink
+item dn,sort    seeAlso                 seeAlso
+item cis    organizationalStatus        organizationalStatus
+item cis    userClass                   userClass
+item dn     roleOccupant                roleOccupant
+item time   lastModifiedTime            lastModifiedTime
+item dn     lastModifiedBy              lastModifiedBy
+item cis    objectClass                 objectClass
+item cis    acl                         acl
+item linkact vcard   vcard  "?vcard"
+END
+
+
+# Person template
+"Person-add"
+"People"
+"person icon"
+# template options
+addable
+# objectclass list
+person
+END
+# name of attribute to authenticate as
+"manager"
+# default attribute name to use when forming RDN of a new entry
+cn
+# default location when adding new entries
+""
+# rules used to define default values for new entries
+constant objectclass top
+constant objectclass person
+constant objectclass organizationalPerson
+constant objectclass thornObject
+constant objectclass thornPerson
+constant objectclass labeledURIObject
+constant objectclass quipuObject
+constant mail change:@tu-chemnitz.de
+constant telephoneNumber "change:+49 371 531-"
+addersdn manager
+END
+# list of items to add
+
+item cis,sort,required	cn  cn
+item cis,1val,required   sn  sn
+item cis,1val	personalTitle	        personalTitle
+item cis        ou                      ou
+item cis	    telephoneNumber         telephoneNumber
+item cis	    facsimileTelephoneNumber    facsimileTelephoneNumber
+item mail,required	    mail                    mail
+item cis        userPassword            userPassword
+item url        labeledURI              labeledURI
+item cis        roomNumber              roomNumber
+item cis,1val	uid                     uid
+item cis	    person-description      description
+item dn,ro    manager                 manager
+item cis,ro     objectclass             objectclass
+END

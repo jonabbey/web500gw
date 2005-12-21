@@ -1,0 +1,133 @@
+#
+# $Id: ldapfriendly.de,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+AR	Argentinien
+AU	Australien
+AT	Österreich
+BE	Belgien
+BR	Brasilien
+CA	Kanada
+CZ	Tschechische Republik
+HR	Kroatien
+CS	Tschechoslowakei
+DE	Deutschland
+DK	Dänemark
+EE	Estland
+FI	Finnland
+FR	Frankreich
+GB	Großbritannien
+GR	Griechenland
+HK	Hong Kong
+HU	Ungarn
+IS	Island
+IN	Indien
+IE	Irland
+IL	Israel
+IT	Italien
+JP	Japan
+KR	Korea
+LI	Liechtenstein
+LU	Luxemburg
+MY	Malaysia
+NL	Niederlande
+NZ	Neuseeeland
+NO	Norwegen
+PL	Polen
+PT	Portugal
+ES	Spanien
+SE	Schweden
+CH	Schweiz
+US	USA
+SI	Slovenien
+SK	Slowakei
+SG	Singapur
+RU	Rußland
+
+lang_en	English
+lang_es	Castellano
+lang_fr	Français
+telephoneNumber	Telefon
+homePhone	Privates Telefon
+jpegPhoto	Photo (JPEG)
+photo	Photo (G3Fax)
+audio	Audio
+personalTitle	Titel
+cn	Name
+sn	Nachname
+ou	Bereich
+name	Name
+co	Land
+l	Ort
+associatedDomain	Zugehörige Internet-Domain
+postalAddress	Postadresse
+homePostalAddress	Private Adresse
+pager	Pager
+facsimileTelephoneNumber	Fax
+mail	E-Mail
+labeledURI	URL
+roomNumber	Arbeitszimmer
+room		Raum
+uid	Loginname
+person-description	Arbeitsgebiet/Interessen
+role-description	Arbeitsgebiet
+description	Beschreibung
+multilineDescription	Beschreibung
+info	Weitere Informationen
+seeAlso	Siehe auch
+organizationalStatus	Status
+userClass	Nutzerklasse
+roleOccupant	Verantwortliche(r)
+lastModifiedTime	Letzte Modifikation am
+lastModifiedBy	Letzte Modifikation durch
+manager	Manager
+masterDSA	Master DSA
+objectClass	Objektklasse
+acl	ACL
+provider	Provider
+serviceArea	Service Area
+pGPKey	Öffentlicher PGP-Schlüssel
+pGPKeyRev	Zurückgenomme PGP-Schlüssel
+pGPKeyID	PGP KeyID
+pGPUserID	PGP UserID
+pGPKeyURL	PGP-URL
+drink	Lieblingsgetränk
+more attributes	Weitere Attribute
+normal attributes	Normale Attribute
+modify	Modifizieren
+add	Neuen Eintrag hinzufügen
+delete	Löschen
+modrdn	Umbenennen
+list	Liste
+tel-mail-dir	Telefon/Email-Verzeichnis
+vcard	vCard
+userPassword	Paßwort
+
+World	Welt
+Country	Land
+Countries	Länder
+Locality	Gebiet
+Localities	Gebiete
+Person	Person
+People	Personen
+Organization	Organisation
+Organizations	Organisationen
+Organizational Unit	Bereich
+Organizational Units	Bereiche
+Organizational Role	Verantwortliche(r)
+Organizational Roles	Verantwortliche
+Room	Raum
+Rooms	Räume
+Application Process	Rechner
+Application Processes	Rechner
+Application Entity	Anwendung
+Application Entities	Anwendungen
+
+# filter descriptions
+default filter	alle Einträge
+arbitrary filter	entsprechend dem Suchfilter
+phone number	Telefonnummer
+email address	E-Mail Adresse
+start of email address	Beginn der E-Mail Adresse
+exact	exakte Übereinstimmung
+approximate	annähernde Übereinstimmung

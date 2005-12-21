@@ -1,0 +1,100 @@
+#
+# $Id: ldapfriendly.fr,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+AR	Argentine
+AU	Australie
+AT	Autriche
+BE	Belgique
+BR	Brésil
+CA	Canada
+CZ	République Tchéue
+HR	Croatie
+DK	Danemrk
+EE	Estonie
+FI	Finlande
+FR	France
+DE	Allemagne
+GB	Grande Bretagne
+GR	Gréce
+HK	Hong Kong
+HU	Hongrie
+IS	Islande
+IN	Inde
+IE	Irlande
+IL	Israël
+IT	Italie
+JP	Japon
+KR	Corée
+LI	Liechtenstein
+LU	Luxembourg
+MY	Malaisie
+NL	Pays-Bas
+NZ	Nouvelle-Zélande
+NO	Norvège
+PL	Pologne
+PT	Portugal
+RU	Russie
+SG	Singapour
+SI	Slovenie
+SK	Slovaquie
+ES	Espagne
+SE	Suède
+CH	Suisse
+US	USA
+SG	Singapour
+
+lang_de	Deutsch
+lang_en	English
+lang_es	Castellano
+telephoneNumber	Numéro de téléphone
+homePhone	Téléphone personnel
+jpegPhoto	Photo (JPEG)
+photo	Photo (G3Fax)
+audio	Audio
+personalTitle	Titre
+cn	Nom
+ou	Départrment/Division
+name	Nom
+co	Pays
+l	Location
+associatedDomain	Domaine internet associé
+postalAddress	Adresse Postale
+homePostalAddress	Adresse Personnelle
+pager	Numéro de pager
+facsimileTelephoneNumber	Numéro de Fax
+mail	Adresse Électronique
+labeledURI	URL
+roomNumber	Salle de travail
+room		Pièce
+uid	ID utilisateur
+person-description	Description/Intérêts
+role-description	Description
+description	Description
+multilineDescription	Description
+info	Pour plus d'informations
+seeAlso	Voir aussi
+organizationalStatus	Statut
+userClass	Type d'utilisateur
+roleOccupant	Occupant du role 
+lastModifiedTime	Date de Dernière modification
+lastModifiedBy	Dernière modification par
+manager	Gestionnaire
+masterDSA	Master DSA
+objectClass	Objectclass
+acl	ACL
+provider	Provider
+serviceArea	Service Area
+pGPKey	Public  PGP Key
+pGPKeyRev	Zurückgenomme PGP-Schlüssel
+pGPKeyID	PGP KeyID
+pGPUserID	PGP UserID
+pGPKeyURL	PGP URL
+drink	Boisson Favorite
+more attributes	Plus d'attributs
+normal attributes	Attributs principaux
+modify	Modifier
+list	Parcourir
+tel-mail-dir	Récapitulatif téléphone/mail
+vcard	Carte de visite (vCard)
+

@@ -1,0 +1,133 @@
+#
+# $Id: ldapfriendly,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+AR	Argentina
+AU	Australia
+AT	Austria
+BE	Belgium
+BR	Brazil
+CA	Canada
+CZ	Czech Republic
+HR	Croatia
+DK	Denmark
+EE	Estonia
+FI	Finland
+FR	France
+DE	Germany
+GB	Great Britain
+GR	Greece
+HK	Hong Kong
+HU	Hungary
+IS	Iceland
+IN	India
+IE	Ireland
+IL	Israel
+IT	Italy
+JP	Japan
+KR	Korea
+LI	Liechtenstein
+LU	Luxemburg
+MY	Malaysia
+NL	Netherlands
+NZ	New Zealand
+NO	Norway
+PL	Poland
+PT	Portugal
+RU	Russia
+SG	Singapore
+SI	Slovenia
+SK	Slovakia
+ES	Spain
+SE	Sweden
+CH	Switzerland
+US	USA
+SI	Slovenia
+SK	Slovakia
+SG	Singapor
+
+lang_de	Deutsch
+lang_es	Castellano
+lang_fr	Français
+telephoneNumber	Phone Number
+homePhone	Home Phone
+jpegPhoto	Photo (JPEG)
+photo	Photo (G3Fax)
+audio	Audio
+personalTitle	Title
+cn	Name
+ou	Department/Division
+name	Name
+co	Country
+l	Location
+associatedDomain	Associated Internet Domain
+postalAddress	Postal Address
+homePostalAddress	Home Address
+pager	Pager Number
+facsimileTelephoneNumber	Fax Number
+mail	E-Mail Address
+labeledURI	URL
+roomNumber	Work Room
+room		Room
+uid	User ID
+person-description	Description/Interests
+role-description	Description
+description	Description
+multilineDescription	Description
+info	Further Information
+seeAlso	See Also
+organizationalStatus	Status
+userClass	User Class
+roleOccupant	Role Occupant
+lastModifiedTime	Last Modified
+lastModifiedBy	Last Modified By
+manager	Manager
+masterDSA	Master DSA
+objectClass	Objectclass
+acl	ACL
+provider	Provider
+serviceArea	Service Area
+pGPKey	Public  PGP Key
+pGPKeyRev	Zurückgenomme PGP-Schlüssel
+pGPKeyID	PGP KeyID
+pGPUserID	PGP UserID
+pGPKeyURL	PGP URL
+drink	Favorite Beverage
+more attributes	More Attributes
+normal attributes	Main Attributes
+modify	Modify
+add	Add new entry
+delete	Delete
+modrdn	Rename
+list	Browse
+tel-mail-dir	Phone/Email Directory
+vcard	Business Card (vCard)
+
+World	World
+Country	Country
+Countries	Countries
+Locality	Locality
+Localities	Localities
+Person	Person
+People	People
+Organization	Organization
+Organizations	Organizations
+Organizational Unit	Organizational Unit
+Organizational Units	Organizational Units
+Organizational Role	Organizational Role
+Organizational Roles	Organizational Roles
+Room	Room
+Rooms	Rooms
+Application Process	Application Process
+Application Processes	Application Processes
+Application Entity	Application Entity
+Application Entities	Application Entities
+
+# filter descriptions
+default filter	default filter
+arbitrary filter	arbitrary filter
+phone number	phone number
+email address	email address
+start of email address	start of email address
+exact	exact
+approximate	approximate

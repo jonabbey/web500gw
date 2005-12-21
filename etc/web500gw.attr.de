@@ -1,0 +1,306 @@
+<HTML>
+<HEAD>
+<TITLE>web500gw - Hilfe zu X.500 Attributen</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#006600" VLINK="#003300"
+ALINK="#00FF00">
+
+<!-- German help file on X.500 attributes
+   - Part of web500gw, a X.500 - WWW - Gateway
+   - see http://web500gw.sourceforge.net/
+   - Frank Richter <Frank.Richter@hrz.tu-chemnitz.de> 1996
+   -
+   - $Id: web500gw.attr.de,v 1.3 2001/04/26 22:30:40 dekarl Exp $
+  -->
+
+<H1>web500gw - Hilfe zu X.500 Attributen</H1>
+<HR>
+
+
+<A NAME="cn"><H2>Name</H2></A>
+<B>Ist hier nicht &auml;nderbar!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>commonName, cn</TT>
+<DT><B>Beschreibung</B><DD> Vor- und Familienname
+<DT><B>Format</B><DD> Zeichenkette, leider keine Umlaute m&ouml;glich...
+<DT><B>Beispiel</B><DD><TT>Alfons Bitmeister</TT>
+</DL>
+<HR>
+<A NAME="personalTitle"><H2>Titel</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>personalTitle</TT>
+<DT><B>Beschreibung</B><DD> Akademischer Titel, gebr&auml;uchliche Abk&uuml;rzung
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>Dr.-Ing.</TT>
+</DL>
+<HR>
+
+<A NAME="telephoneNumber"><H2>Telefon</H2></A>
+<B>Bitte angeben, falls vorhanden!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>telephoneNumber</TT>
+<DT><B>Beschreibung</B><DD>Dienstliche Telefonnummer
+<DT><B>Format</B><DD> <TT>+49 371 531-XXXX</TT>
+<DT><B>Beispiel</B><DD><TT>+49 371 531-1234</TT>
+</DL>
+<HR>
+
+<A NAME="facsimileTelephoneNumber"><H2>Fax</H2></A>
+<B>Wird vom Fachbereich/der Einheit &uuml;bernommen, ist hier (noch) nicht 
+&auml;nderbar! - Wir arbeiten dran...</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>facsimileTelephoneNumber</TT>
+<DT><B>Beschreibung</B><DD>Dienstliche Faxnummer
+<DT><B>Format</B><DD> <TT>+49 371 531-XXXX</TT>
+<DT><B>Beispiel</B><DD><TT>+49 371 531-5678</TT>
+</DL>
+<HR>
+
+<A NAME="postalAddress"><H2>Postadresse</H2></A>
+<B>Wird vom Fachbereich/der Einheit &uuml;bernommen, ist hier nicht &auml;nderbar!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>postalAddress</TT>
+<DT><B>Beschreibung</B><DD>Dienstliche Postanschrift
+<DT><B>Format</B><DD> Zeichenkette, mehrzeilig (max. 6 Zeilen je 30 Zeichen)
+<DT><B>Beispiel</B><DD>
+<TT>TU Chemnitz<BR>
+  Universitaetsrechenzentrum <BR>
+09107 Chemnitz <BR>
+Federal Republic of Germany</TT>
+</DL>
+<HR>
+
+<A NAME="mail"><H2>E-Mail</H2></A>
+<B>Bitte angeben, falls vorhanden!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>mail</TT>
+<DT><B>Beschreibung</B><DD> Pers&ouml;nliche Electronic Mail Adressei
+(RFC-Schreibweise)
+<DT><B>Format</B><DD> Zeichenkette <TT>(Nutzer@Domain)</TT>
+<DT><B>Beispiel</B><DD><TT>Alfons.Bitmeister@Informatik.TU-Chemnitz.DE</TT>
+</DL>
+<HR>
+
+<A NAME="labeledURI"><H2>URL - Verweis auf Daten im WWW</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>labeledURI</TT>
+<DT><B>Beschreibung</B><DD> Ein Verweis auf Daten im Internet, z.B.
+seine pers&ouml;nliche Homepage (URL + Kurzinformation)
+<DT><B>Format</B><DD> URL + Zeichenkette
+<DT><B>Beispiel</B><DD><TT>http://www.tu-chemnitz.de/index.html TUCZ-Homepage</TT>
+</DL>
+<HR>
+
+<A NAME="ou"><H2>Bereich</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>organizationalUnit</TT>
+<DT><B>Beschreibung</B><DD> Lehrstuhl, Abteilung, Projekt
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>Lehrstuhl f&uuml;r Programmiertechnik</TT>
+</DL>
+
+<HR>
+<A NAME="description"><H2>Arbeitsgebiet/Interessen</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>description</TT>
+<DT><B>Beschreibung</B><DD> Arbeits- und Forschungsgebiete, Interessen
+(m&ouml;glichst englisch, zus&auml;tzlich deutsch)
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>Programming languages</TT>
+		<DD><TT>Programmiersprachen</TT>
+</DL>
+<HR>
+
+<A NAME="info"><H2>Weitere Informationen</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>info</TT>
+<DT><B>Beschreibung</B><DD>Beliebige weitere Informationen und Mitteilungen zur
+Person
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>Just testing my new compiler</TT>
+</DL>
+<HR>
+
+<A NAME="roomNumber"><H2>Arbeitszimmer</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>roomNumber</TT>
+<DT><B>Beschreibung</B><DD> Nummer des Arbeitszimmers
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>1/123c</TT>
+</DL>
+<HR>
+
+<A NAME="organizationalStatus"><H2>Status</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>organizationalStatus</TT>
+<DT><B>Beschreibung</B><DD> Status an der Einrichtung
+<DT><B>Format</B><DD> Zeichenkette, falls Student bitte <TT>Student
+Imm.-jahr</TT>
+<DT><B>Beispiel</B><DD><TT>Student 91</TT>
+</DL>
+<HR>
+
+<A NAME="uid"><H2>Loginname</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>uid</TT>
+<DT><B>Beschreibung</B><DD> Loginname (Nutzerkennzeichen)
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>alf</TT>
+</DL>
+<HR>
+
+<A NAME="pGPKey"><H2>Öffentlicher PGP-Schlüssel</H2></A>
+<B>Freiwillige Angabe - Experimentell!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>pGPKey</TT>
+<DT><B>Beschreibung</B><DD> 
+Ihr öffentlicher PGP-Key.
+<BR>
+<A HREF="#PGP"><STRONG>Hinweis lesen</STRONG></A>
+<DT><B>Format</B><DD> Zeichenkette, wie durch <CODE>pgp -kxa</CODE>
+ausgebenen.
+<DT><B>Beispiel</B><DD><PRE>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.i
+
+mQBtAi7R5YQAAA.....
+...
+-----END PGP PUBLIC KEY BLOCK-----
+</PRE>
+</DL>
+<HR>
+
+<A NAME="pGPKeyRev"><H2>Zurückgezogene öffentliche PGP-Schlüssel</H2></A>
+<B>Freiwillige Angabe - Experimentell!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>pGPKeyRev</TT>
+<DT><B>Beschreibung</B><DD> 
+Zurückgezogene öffentliche PGP-Keys.
+<BR>
+<A HREF="#PGP"><STRONG>Hinweis lesen</STRONG></A>
+<DT><B>Format</B><DD> Zeichenkette, wie durch <CODE>pgp -kxa</CODE>
+ausgebenen.
+<DT><B>Beispiel</B><DD><PRE>
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: 2.6.i
+
+mQBtAi7R5YQAAA.....
+...
+-----END PGP PUBLIC KEY BLOCK-----
+</PRE>
+</DL>
+<HR>
+
+<A NAME="pGPKeyID"><H2>Schlüssel-ID Ihres PGP-Schlüssels</H2></A>
+<B>Freiwillige Angabe - Experimentell!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>pGPKeyID</TT>
+<DT><B>Beschreibung</B><DD> 
+Schlüssel-Identifikator Ihres PGP-Keys.
+<BR>
+<A HREF="#PGP"><STRONG>Hinweis lesen</STRONG></A>
+<DT><B>Format</B><DD> Kurze Zeichenkette, wie durch <CODE>pgp -kxa</CODE>
+als Key ID ausgebenen.
+<DT><B>Beispiel</B><DD><TT>A2345678</TT>
+</DL>
+<HR>
+
+<A NAME="pGPUserID"><H2>Benutzer-ID Ihres PGP-Schlüssels</H2></A>
+<B>Freiwillige Angabe - Experimentell!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>pGPUserID</TT>
+<DT><B>Beschreibung</B><DD> 
+Der beim PGP-Key Einrichten gewählte PGP-Benutzer-Identifikator.
+<BR>
+<A HREF="#PGP"><STRONG>Hinweis lesen</STRONG></A>
+<DT><B>Format</B><DD> Zeichenkette, wie durch <CODE>pgp -kxa</CODE>
+als user ID ausgebenen.
+<DT><B>Beispiel</B><DD><TT>Alfons Bitmeister
+&lt;Alfons.Bitmeister@Informatik.TU-Chemnitz.DE&gt;</TT>
+</DL>
+<HR>
+
+<A NAME="pGPKeyURL"><H2>URL - anderer Zugang zu Ihren
+PGP-Schlüssel-Informationen</H2></A>
+<B>Freiwillige Angabe - Experimentell!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>pGPKeyURL</TT>
+<DT><B>Beschreibung</B><DD> 
+Ein Verweis auf Daten im Internet, die weitere PGP-Informationen
+enthalten (z.B. Ihren öffentlichen  PGP-Schlüssel - alternativ zur
+<A HREF="#pGPKey">direkten Angabe im Eintrag</A> - oder den 
+Fingerprint). Besteht aus URL und Kurzbeschreibung der Daten.
+<BR>
+<A HREF="#PGP"><STRONG>Hinweis lesen</STRONG></A>
+<DT><B>Format</B><DD> URL Zeichenkette
+<DT><B>Beispiel</B><DD><TT>http://www..../finger/... PGP-Key via Finger
+</TT>
+</DL>
+<HR>
+
+<A NAME="homePostalAddress"><H2>priv. Adresse</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>homePostalAddress</TT>
+<DT><B>Beschreibung</B><DD> Private Postanschrift
+<DT><B>Format</B><DD> Zeichenkette, mehrzeilig
+<DT><B>Beispiel</B><DD><TT>Turing-Gasse 1011</TT>
+            <DD><TT>01010 Bitlingen</TT>
+</DL>
+<HR>
+
+<A NAME="homePhone"><H2>priv. Telefon</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>homePhone</TT>
+<DT><B>Beschreibung</B><DD> Private Telefonnummer
+<DT><B>Format</B><DD> +49 Vorwahl Ortsrufnummer
+<DT><B>Beispiel</B><DD><TT>+49 371 123 456</TT>
+</DL>
+<HR>
+
+<A NAME="pager"><H2>Pager Nummer</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>pager</TT>
+<DT><B>Beschreibung</B><DD> Die Nummer eines Pagers, so man hat ...
+<DT><B>Format</B><DD> +49 Vorwahl Ortsrufnummer
+<DT><B>Beispiel</B><DD><TT>+49 371 987 654</TT>
+</DL>
+<HR>
+
+<A NAME="drink"><H2>Lieblingsgetr&auml;nk</H2></A>
+<B>Freiwillige Angabe!</B>
+<DL>
+<DT><B>X.500 Attributname</B><DD><TT>drink</TT>
+<DT><B>Beschreibung</B><DD> Was man halt gerne trinkt. Nicht immer, aber ...
+<DT><B>Format</B><DD> Zeichenkette
+<DT><B>Beispiel</B><DD><TT>Wernesgr&uuml;ner</TT>
+</DL>
+
+<HR>
+
+<A NAME="PGP"><H2>Hinweise zu PGP</H2></A>
+
+PGP = Pretty Good Privacy, siehe
+<UL>
+<LI><A HREF="http://www.zerberus.de/~christopher/pgp/">Deutschsprachige
+Anleitung</A>
+<LI><A HREF="http://www.ifi.uio.no/pgp/">The International PGP Home Page</A>
+</UL>
+<DL>
+<DT><STRONG>Hinweis:</STRONG> 
+<DD>Das X.500-System kann nicht die Echtheit
+von Schlüsseln oder IDs garantieren! Diese Prüfung muß über andere Wege 
+erfolgen!
+</DL>
+</BODY>
+</HTML>

@@ -1,0 +1,118 @@
+<HTML>
+<HEAD>
+<TITLE>Web500gw Help</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#006600" VLINK="#003300"
+ALINK="#00FF00">
+
+<!--
+   - $Id: web500gw.help,v 1.3 2001/04/26 22:30:40 dekarl Exp $
+  -->
+
+<H2> WWW/HTTP - X.500/LDAP Gateway HELP</H2>
+
+
+<STRONG><FONT COLOR="#006600">Web500gw</FONT></STRONG>
+is a World Wide Web/HTTP to X.500/LDAP gateway (version 2.1).
+This gateway provides access to LDAP based Directories
+for WWW clients. Some features of this gateway: 
+
+<DL>
+<DT><STRONG>Read of Directory entries</STRONG><DD>
+    The attributes of an entry will be shown. 
+    Some attributes are handled in a special way:
+    <UL>
+    <LI>Attributes containing a DN (<TT>see Also, roleOccupant</TT>)
+       are Hypertext links to this DN.
+    <LI>Attributes containg an E-Mail address could be linked with a
+       special action (<TT>mailto:</TT>).
+    <LI>Of course, attributes containing an URI (<TT>labeledURI</TT>)
+       are shown as Hypertext link to this URI.
+    <LI>Photos are either displayed as inline images or may be
+       downloaded
+       via Hypertext links. (JPEG Photos as JPEG or GIF images,
+       dependent on your client, G3Fax Photos as GIF images).
+    <LI>Audio data can be retrieved via Hypertext link.
+    </UL>
+    Dependent on the configuration there will be "special actions" for an
+    entry as well, e.g. links (e.g. "Show more attributes") or
+    search actions (e.g. list children).
+
+<DT><STRONG>Browse</STRONG><DD>
+    Entries below a node may be listed as Hypertext links,
+    sorted by objectclasses. Special attributes may be shown (e.g.
+    <TT>description</TT>) with the entry name (server configurable or
+    via URL). A "Move upwards" list or menu allows to go upwards in the
+    Directory tree.
+
+<DT><A NAME="search"><STRONG>Search</STRONG></A><DD>
+    In most pages you will find an input field to type in a search item
+    and buttons to start search or erase input. 
+    At the upper levels of the Directory tree (root or country level)
+    searches are assumed to be for countries, organizations or localities 
+    and are <TT>one-level</TT> in scope.
+    At the lower levels of the tree (organization or organizationalunit level) 
+    searches are assumed to be for people and are <TT>subtree</TT> in scope.
+    This default search strategy is configurable by your web500gw administrator.
+
+<P> User friendly name (UFN) searching is supported, simply type in:  
+<BLOCKQUOTE>
+   <TT>Name, Organzation, Country</TT>
+</BLOCKQUOTE>
+
+<P> You can specify complex search filters in URL's,
+    but there is currently no interactive search form for this.
+
+<DT><STRONG>Modify</STRONG><DD>
+    To modify an entry you have to bind to the Directory.
+    Currently only Simple Authentication is supported (plain password).
+    It is possible to authenticate as a Manager to modify another entry.
+    After successful binding you get a form containing the modifyable
+    attributes.
+</DL>
+For more information please take a look at the 
+<A HREF="http://web500gw.sourceforge.net/"><STRONG>Web500gw
+Online documentation</STRONG></A>.
+<P>
+<HR>
+<P>
+<STRONG><FONT COLOR="#006600">Web500gw</FONT></STRONG>
+is written by
+<A HREF="/cn=Frank%20Richter,ou=Rechenzentrum,o=Technische%20Universitaet%20Chemnitz,%20c=DE">
+Frank Richter</A>, Technical University of Chemnitz, Germany.
+The code is based on the Gopher - LDAP gateway (go500gw)
+implementation by Tim Howes, Netscape Communications Corp.
+Many thanks to Mark Smith, Netscape Communications Corp.,
+Rakesh Patel, Rutgers University and
+<A
+HREF="/cn%3dHallvard%20B%20Furuseth%2c%20ou%3dUniversitetets%20Senter%20for%20Informasjonsteknologi%2c%20o%3dUniversitetet%20i%20Oslo%2c%20c%3dNO">
+Hallvard B Furuseth</A>, Oslo University for their contributions.
+Thanks to all the others for their fixes, suggestions, hints, questions.
+<P>
+If you have comments, suggestions or questions about this gateway, 
+please send email to 
+<A HREF="mailto:Frank.Richter@Hrz.TU-Chemnitz.DE">
+Frank.Richter@Hrz.TU-Chemnitz.DE</A>.
+
+<P><STRONG>Please note: The author is not responsible for the
+completeness or correctness of the data in the Directory System!
+</STRONG>
+<P>
+For more information on Directories, X.500 and LDAP please refer to
+<UL>
+<LI><A HREF="http://www.bath.ac.uk/~ccsap/Directory/x500.html">the Directory
+    Services pages at Bath University, UK</A>. 
+<LI><A HREF="http://www.nexor.co.uk/public/directory.html">X.500 
+    information at NEXOR</A>
+<LI><A HREF="http://www.umich.edu/~rsug/ldap/">LDAP information at the 
+    University of Michigan</A>.
+</UL>
+
+<P>
+<HR>
+<A HREF="/cn=Frank%20Richter,%20ou=Rechenzentrum,%20o=Technische%20Universitaet%20Chemnitz,%20c=DE"> Frank Richter</A>,
+<A HREF="/o=Technische%20Universitaet%20Chemnitz,c=DE">
+Technical University of Chemnitz</A>, 
+<A HREF="/c=DE">Germany</A>.
+</BODY>
+</HTML>

@@ -1,0 +1,729 @@
+: # use perl -*- Perl -*-
+        eval 'exec perl -S $0 "$@"'
+                if $runnning_under_some_shell;
+# clever way of calling perl on this script : stolen from weblint
+##!/usr/local/bin/perl # you could try this also!
+
+### web500gwstat reads the logfile written by web500gw (and go500gw)
+### and prints out some usage statistics
+### Usage:   web500stat files ...  (file may be "-" == stdin)
+### Written by Frank.Richter@hrz.tu-chemnitz.de
+#
+# $Id: web500stat,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+### Please change this:
+$WEB500GW = "http://x500.tu-chemnitz.de:8888";      # The web500gw URL
+$GO500GW  = "gopher://x500.tu-chemnitz.de:7777";    # The go500gw URL
+
+$mydom1 = "tu-chemnitz";  # the local domain, without toplevel
+$mydom2 = "de";           # the local toplevel domain
+
+$config_file = '/usr/local/etc/web500/web500gw.conf';
+
+$TOPNU = 0;               # how many TOP requests, 0 == no stats on this
+$LTOPNU = 0;              # how many TOP requests LOCAL, 0 == no stats on this
+$RTOPNU = 0;              # how many TOP requests REMOTE, 0 == no stats on this
+$TOPERRNU = 0;           # how many TOP ERROR requests, 0 == no stats on this
+$TOPHOST = 30;            # how many TOP hosts
+$NDOM = 30;               # how many "NEAR" domains
+$MINDOC = 10;             # minimum count of requests (sonst unbeachtet)
+
+# A file containig friendly names of the toplevel domains (countries)
+#   see domain.codes.txt in this directory
+$DOMAINFILE = "/usr/local/etc/domain.codes.txt";
+
+
+### End of configuration
+
+
+sub Usage {
+    print "
+Usage: $0 web500gwlogfiles ...
+   or  $0 -                (read from stdin)\n";
+}
+
+$SIG{'INT'} = 'catch';
+$SIG{'FPE'} = 'handler';
+$SIG{'BUS'} = 'handler';
+$SIG{'SEGV'} = 'handler';
+$SIG{'FPE'} = 'handler';
+
+$LDAP_ERR[0x00] = "Success";
+$LDAP_ERR[0x01] = "Operations error";
+$LDAP_ERR[0x02] = "Protocol error";
+$LDAP_ERR[0x03] = "Timelimit exceeded";
+$LDAP_ERR[0x04] = "Sizelimit exceeded";
+$LDAP_ERR[0x05] = "Compare false";
+$LDAP_ERR[0x06] = "Compare true";
+$LDAP_ERR[0x07] = "Strong authentication not supported";
+$LDAP_ERR[0x08] = "Strong authentication required";
+$LDAP_ERR[0x10] = "No such attribute";
+$LDAP_ERR[0x11] = "Undefined attribute type";
+$LDAP_ERR[0x12] = "Inappropriate matching";
+$LDAP_ERR[0x13] = "Constraint violation";
+$LDAP_ERR[0x14] = "Type or value exists";
+$LDAP_ERR[0x15] = "Invalid syntax";
+$LDAP_ERR[0x20] = "No such object";
+$LDAP_ERR[0x21] = "Alias problem";
+$LDAP_ERR[0x22] = "Invalid DN syntax";
+$LDAP_ERR[0x23] = "Object is a leaf";
+$LDAP_ERR[0x24] = "Alias dereferencing problem";
+$LDAP_ERR[0x30] = "Inappropriate authentication";
+$LDAP_ERR[0x31] = "Invalid credentials";
+$LDAP_ERR[0x32] = "Insufficient access";
+$LDAP_ERR[0x33] = "DSA is busy";
+$LDAP_ERR[0x34] = "DSA is unavailable";
+$LDAP_ERR[0x35] = "DSA is unwilling to perform";
+$LDAP_ERR[0x36] = "Loop detected";
+$LDAP_ERR[0x40] = "Naming violation";
+$LDAP_ERR[0x41] = "Object class violation";
+$LDAP_ERR[0x42] = "Operation not allowed on nonleaf";
+$LDAP_ERR[0x43] = "Operation not allowed on RDN";
+$LDAP_ERR[0x44] = "Already exists";
+$LDAP_ERR[0x45] = "Cannot modify object class";
+$LDAP_ERR[0x46] = "Results too large";
+$LDAP_ERR[0x50] = "Unknown error";
+$LDAP_ERR[0x51] = "Can't contact LDAP server";
+$LDAP_ERR[0x52] = "Local error";
+$LDAP_ERR[0x53] = "Encoding error";
+$LDAP_ERR[0x54] = "Decoding error";
+$LDAP_ERR[0x55] = "Timed out";
+$LDAP_ERR[0x56] = "Unknown authentication method";
+$LDAP_ERR[0x57] = "Bad search filter";
+$LDAP_ERR[0x58] = "User cancelled operation";
+$LDAP_ERR[0x59] = "Bad parameter to an ldap routine";
+$LDAP_ERR[0x5a] = "Out of memory";
+
+$| = 1;     # unbuffered output
+
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$starttime = sprintf("%02d/%02d/%2d %02d:%02d", $mday,$mon+1,$year,$hour,$min);
+
+if (open(D, "< $DOMAINFILE")) {
+    while (<D>) {
+        chop;
+        ($dom, $name) = split(/\s/, $_, 2);
+        $dom =~ tr/[A-Z]/[a-z]/;
+        $DOMAIN{$dom} = $name;
+    }
+    close(D);
+} else {
+    print "Can't open friendly domain file: $DOMAINFILE\n";
+}
+
+@FILES = @ARGV;
+if ($#FILES < 0) {
+    &Usage;
+    exit;
+}
+
+# BIGLOOP
+foreach $f (@FILES) {
+    if ($f eq '-') {
+        print STDERR "\n\n### STDIN ###\n";
+
+        while (<STDIN>) {
+            $lines++;
+            $reading = 1;
+            &process_line;
+        }
+    } else {
+        open(F, "< $f") || die "Can't open $f!\n";
+        print STDERR "\n\n### $f ###\n";
+
+        @show = ( '-', '\\', '|', '/');
+        print STDERR "Counting lines:         ";
+        $i = 0;
+
+        while (<F>) {
+            printf STDERR "\b\b\b\b\b\b\b\b%8d", $. if ($. % 1000 == 0);
+        }
+        printf STDERR "\b\b\b\b\b\b\b\b%8d\n", $.;
+        $graph = 0;
+        if ($. > 1000) {
+            $graph = 1;
+            $mark = int($. / 50); $mark2 = int($mark/20);
+            print STDERR "0   10   20   30   40   50   60   70   80   90   100 %\n";
+            print STDERR "|----+----+----+----+----|----+----+----+----+----|\n";
+        }
+        close(F);
+        open(F, "< $f");
+        while (<F>) {
+            $lines++;
+            $reading = 1;
+            &process_line();
+        }
+    }
+}   # end BIGLOOP
+
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$comptime = sprintf("%02d/%02d/%2d %02d:%02d", $mday,$mon+1,$year,$hour,$min);
+
+print STDERR "\n\nDoing statistics now .";
+
+# Nun die Auswertung
+Auswertung:
+$reading = 0;
+
+@dates = sort datecompare keys(REQ);
+$days = $#dates + 1;
+foreach $i (@dates) {
+    $maxdate = $REQ{$i} if ($REQ{$i} > $maxdate);
+}
+$markreq = int($maxdate / 50);
+$markreq = 1 if ($markreq == 0);
+print STDERR ".";
+
+foreach $h (keys(HOSTS)) {
+    $hosts++;
+    @addr = split(/\./, $h);
+    $domain = $addr[$#addr];
+    if ($addr[$#addr-1] eq $mydom1 && $addr[$#addr] eq $mydom2) {    # LOKAL
+        $domain = "$mydom1.$mydom2";
+        $localhosts++;
+        $lhostreq{$h} = $HOSTS{$h};
+        $ldomreq{$addr[$#addr-2]} += $HOSTS{$h};
+        $luniqhosts{$addr[$#addr-2]}++;
+    } else {                                            # REMOTE
+        $rhostreq{$h} = $HOSTS{$h};
+        if ($addr[$#addr] eq $mydom2) {                 # NEAR
+            $nearhosts++;
+            $ndomreq{$addr[$#addr-1]} += $HOSTS{$h};
+            $nuniqhosts{$addr[$#addr-1]}++;
+        } elsif ( int($addr[0]) > 0 || $#addr < 2 ) {
+            $domain = "unresolved";
+        }
+    }
+    $domreq{$domain} += $HOSTS{$h};
+    $uniqhosts{$domain}++;
+}
+print STDERR ".";
+$TOPHOUR = "";
+foreach $i ( keys(HREQ)) {
+    if ($HREQ{$i} > $HREQ{$TOPHOUR}) {
+	$TOPHOUR = $i;
+    }
+}
+print STDERR ". General ... ";
+print <<END;
+<HTML><HEAD>
+<TITLE>Web500gw/Go500gw Gateway Statistics: $dates[0] - $dates[$#dates]</TITLE>
+</HEAD><BODY>
+<CENTER>
+<H1>Web500gw/Go500gw Gateway Statistics</H1>
+<H2>from $dates[0] to $dates[$#dates] ($days days)</H2>
+<B> Server:
+<A HREF="$WEB500GW"><TT>$WEB500GW</TT></A>  +
+<A HREF="$GO500GW"><TT>$GO500GW</TT></A>
+</B>
+</CENTER>
+<HR>
+<A NAME="general"><H2>General Statistics</H2></A>
+<PRE>
+
+END
+
+printf "%20s: %8d (Local: %3.1f%%, Old: %3.1f%%)\n", "Web500gw Requests", 
+    $totalreq, $domreq{"$mydom1.$mydom2"}/$totalreq*100, $oldreq/$totalreq*100;
+printf "%20s:  %7d %7d %7d %7d\n", "GET HEAD POST other", 
+                $get, $head, $post, $other;
+printf "%20s: %8d\n", "Average requests/day", $totalreq/$days;
+printf "%20s: %8d\n", "/hour", $totalreq/($days*24);
+printf "%20s: %8d (%s Uhr)\n", "Max requests/hour", $HREQ{$TOPHOUR}, $TOPHOUR;
+printf "%20s: %8d (Local: %d)\n", "Hosts", $hosts, $localhosts;
+printf "%20s: %8d\n", "Web500gw starts", $starts;
+printf "\n%20s: %8d  %20s: %8d\n", "Bind OK", $bindOK, "Bind NOTOK", $bindNOTOK;
+printf "%20s: %8d  %20s: %8d\n", "Modify OK", $modOK, "Modify NOTOK", $modNOTOK;
+printf "\n%20s: %8d (%4.1f%%)\n", "No search results", $no_srch,
+    $no_srch/$totalreq*100;
+printf "%20s: %8d\n%20s: %8d\n", 
+    "Redirected requests", $redir, "Not modified (304)", $not_modified;
+printf "%20s: %8d (%4.1f%%)", "Errors", $errors, $errors/$totalreq*100;
+printf "
+%14s (400): %8d  %14s (401): %8d
+%14s (403): %8d  %14s (404): %8d
+%14s (50?): %8d\n", 
+    "BAD REQUEST", $errorcnt[0], "AUTH REQUESTED", $errorcnt[1], 
+    "FORBIDDEN", $errorcnt[3], "URL NOT FOUND", $errorcnt[4], 
+    "SERVER ERROR", $errorcnt[5];
+printf "\n%20s: %8d\n", "Go500gw Requests", $gophereq;
+
+print STDERR "Daily ... ";
+print <<END1;
+</PRE>
+<DL>
+<DT><B>Go to:</B>
+<DD><A HREF="#daily">[DAILY report]</A>
+<A HREF="#request">[TOP Request reports]</A>
+<A HREF="#domain">[DOMAIN reports]</A>
+<A HREF="#error">[ERROR reports]</A>
+</DL>
+<HR NOSHADE>
+
+<A NAME="daily"><H2>Daily Statistics</H2></A>
+<LISTING>
+Each mark (#) represents $markreq requests.
+<HR>
+END1
+
+foreach $d (@dates) {
+    $graph = '#' x (($REQ{$d} / $markreq) + 1);
+    printf "%10s: %6d: %s\n", $d, $REQ{$d}, $graph;
+}
+
+print STDERR "Requests: ";
+if ($TOPNU > 0) {
+print STDERR "total ";
+### REQUESTS
+@TOTALDOCS = keys(TOTDOCS);
+$uniqdocs = $#TOTALDOCS + 1;
+undef %TOTDOCS;
+undef %TOTALDOCS;
+print STDERR ".";
+# weniger als MINDOC -> weg (sonst Sortierzeit -> unendlich)
+foreach $i ( keys(DOCS)){
+    if ( $DOCS{$i} >  $MINDOC) {
+        $TDOCS{$i} = $DOCS{$i};
+    }
+}
+print STDERR ".";
+undef %DOCS;
+@TOPDOCS = sort  {$TDOCS{$b} <=> $TDOCS{$a}} keys(TDOCS);
+print STDERR "."; 
+$TOPNU = $#TOPDOCS if ($TOPNU > $#TOPDOCS);
+print <<END2;
+</LISTING>
+<HR NOSHADE>
+<A NAME="request"><H2>TOP $TOPNU Requests</H2></A>
+<B>Total: $uniqdocs different requests</B>
+<PRE>
+ #requests : Requested URL
+<HR>
+END2
+
+foreach $docs (@TOPDOCS[0...$TOPNU - 1]) {
+    printf "%10d : <A HREF=\"$WEB500GW%s\">%s</A>\n", $TDOCS{$docs}, $docs, $docs;
+}
+undef %TDOCS;
+undef %TOPDOCS;
+}
+
+if ($LTOPNU > 0) {
+print STDERR " local ";
+@TOTALDOCS = keys(LTOTDOCS);
+print STDERR ".";
+$ldocs = $#TOTALDOCS + 1;
+undef %LTOTDOCS;
+undef %TOTALDOCS;
+# weniger als MINDOC -> weg (sonst Sortierzeit -> unendlich)
+foreach $i ( keys(LDOCS)){
+    if ( $LDOCS{$i} >  $MINDOC) {
+        $LTDOCS{$i} = $LDOCS{$i};
+    }
+}
+print STDERR ".";
+undef %LDOCS;
+@TOPDOCS = sort  {$LTDOCS{$b} <=> $LTDOCS{$a}} keys(LTDOCS);
+print STDERR ".";
+$LTOPNU = $#TOPDOCS if ($LTOPNU > $#TOPDOCS);
+print <<END2;
+</PRE>
+<H2>TOP $LTOPNU Requests from LOCAL hosts ("$mydom1.$mydom2")</H2>
+<B>Total: $ldocs different requests</B>
+<PRE>
+ #requests : Requested URL
+<HR>
+END2
+
+foreach $docs (@TOPDOCS[0...$LTOPNU - 1]) {
+    printf "%10d : <A HREF=\"$WEB500GW%s\">%s</A>\n", $LTDOCS{$docs}, $docs, $docs;
+}
+undef %LTDOCS;
+undef %TOPDOCS;
+}
+
+if ($RTOPNU > 0) {
+print STDERR ". remote ";
+
+@TOTALDOCS = keys(RTOTDOCS);
+print STDERR ".";
+$rdocs = $#TOTALDOCS + 1;
+undef %RTOTDOCS;
+undef %TOTALDOCS;
+
+# weniger als MINDOC -> weg (sonst Sortierzeit -> unendlich)
+foreach $i ( keys(RDOCS)){
+    if ( $RDOCS{$i} >  $MINDOC) {
+        $RTDOCS{$i} = $RDOCS{$i};
+    }
+}
+print STDERR ".";
+undef %RDOCS;
+@TOPDOCS = sort  {$RTDOCS{$b} <=> $RTDOCS{$a}} keys(RTDOCS);
+print STDERR ".";
+$RTOPNU = $#TOPDOCS if ($RTOPNU > $#TOPDOCS);
+print <<END2;
+</PRE>
+<H2>TOP $RTOPNU Requests from REMOTE Hosts</H2>
+<B>Total: $rdocs different requests</B>
+<PRE>
+ #requests : Requested URL
+<HR>
+END2
+
+foreach $docs (@TOPDOCS[0...$RTOPNU - 1]) {
+    printf "%10d : <A HREF=\"$WEB500GW%s\">%s</A>\n", $RTDOCS{$docs}, $docs, $docs;
+}
+undef %RTDOCS;
+undef %OPDOCS;
+}
+
+###DOMAINS
+print STDERR " Domains ";
+
+@TOPDOM = sort {$domreq{$b} <=> $domreq{$a}} keys(domreq);
+print STDERR ".";
+$uniqdom = $#TOPDOM;
+print <<END3;
+</PRE>
+<HR NOSHADE>
+<A NAME="domain"><H2>Domain Statistics</H2></A>
+<B>Total: $hosts hosts from $uniqdom domains</B>
+<PRE>
+ #requests : #Hosts  Domain
+<HR>
+END3
+
+foreach $domain (@TOPDOM) {
+    printf "%10d : %6d  %s (%s)\n", $domreq{$domain},
+        $uniqhosts{$domain}, $DOMAIN{$domain}, $domain;
+}
+undef %TOPDOM;
+### NEAR HOSTS
+@TOPDOM = sort {$ndomreq{$b} <=> $ndomreq{$a}} keys(ndomreq);
+print STDERR ".";
+$nuniqdom = $#TOPDOM + 1;
+$NDOM = $#TOPDOM +1 if ($NDOM > $#TOPDOM);
+print <<END3;
+</PRE>
+<HR>
+<A NAME="ndomain"><H2>TOP $NDOM "$mydom2"-Domains</H2></A>
+<B>Total: $nearhosts hosts from $nuniqdom "$mydom2"-domains</B>
+<PRE>
+ #requests : #Hosts  Domain
+<HR>
+END3
+
+foreach $domain (@TOPDOM[0...$NDOM-1]) {
+    printf "%10d : %6d  %s\n", $ndomreq{$domain},
+        $nuniqhosts{$domain}, $domain;
+}
+undef %TOPDOM;
+
+### REMOTE HOSTS
+$rhosts = 0;
+foreach $h (keys (rhostreq)) {
+    $rhosts++;
+    if ( $rhostreq{$h} > $MINDOC) {
+        $rhostreqs{$h} = $rhostreq{$h};
+    }
+}
+print STDERR ".";
+@RTOPHOSTS = sort {$rhostreqs{$b} <=> $rhostreqs{$a}} keys (rhostreqs);
+print STDERR ".";
+$TOPHOST = $#RTOPHOSTS + 1 if ($TOPHOST > $#RTOPHOSTS);
+print <<END5;
+</PRE>
+<HR>
+<A NAME="rhosts"><H2>TOP $TOPHOST REMOTE Hosts</H2></A>
+<B>Total: $rhosts remote hosts</B>
+<PRE>
+ #requests : Host
+<HR>
+END5
+foreach $host (@RTOPHOSTS[0...$TOPHOST - 1]) {
+    printf "%10d : %s\n", $rhostreqs{$host}, $host;
+}
+
+### LOCAL DOMAINS
+@LTOPDOM = sort {$ldomreq{$b} <=> $ldomreq{$a}} keys(ldomreq);
+print STDERR ".";
+$luniqdom = $#LTOPDOM + 1;
+
+print <<END4;
+</PRE>
+<HR>
+<A NAME="ldomain"><H2>LOCAL Domain "$mydom1.$mydom2"</H2></A>
+<B>Total: $localhosts local hosts from $luniqdom
+"$mydom1.$mydom2"-subdomains</B>
+<PRE>
+ #requests : #Hosts  Domain
+<HR>
+END4
+
+foreach $domain (@LTOPDOM) {
+    printf "%10d : %6d  %s\n", $ldomreq{$domain},
+        $luniqhosts{$domain}, $domain;
+}
+### LOCAL HOSTS
+@LTOPHOSTS = sort {$lhostreq{$b} <=> $lhostreq{$a}} keys (lhostreq);
+print STDERR ".";
+$TOPHOST = $#LTOPHOSTS + 1 if ($TOPHOST > $#LTOPHOSTS);
+print <<END5;
+</PRE>
+<HR>
+<A NAME="ldomain"><H2>TOP $TOPHOST LOCAL Hosts ("$mydom1.$mydom2")</H2></A>
+<B>Total: $localhosts local hosts</B>
+<PRE>
+ #requests : Host
+<HR>
+END5
+
+foreach $host (@LTOPHOSTS[0...$TOPHOST - 1]) {
+    printf "%10d : %s\n", $lhostreq{$host}, $host;
+}
+
+if ($TOPERRNU > 0) {
+# Error URLs
+@TOPDOCS = sort  {$ERRDOCS{$b} <=> $ERRDOCS{$a}} keys(ERRDOCS);
+print STDERR ".";
+$TOPERRNU = $#TOPDOCS if ($TOPERRNU > $#TOPDOCS);
+print <<END6;
+</PRE>
+<HR NOSHADE>
+<A NAME="error"><H2>TOP $TOPERRNU ERROR Requests</H2></A>
+<B>Total: $#TOPDOCS different ERROR requests</B>
+<PRE>
+ #requests : Requested URL (HTTP status, LDAP error)
+<HR>
+END6
+
+foreach $docs (@TOPDOCS[0...$TOPERRNU - 1]) {
+        printf "%10d : %s\n", $ERRDOCS{$docs}, $docs;
+}
+}
+
+print <<END7;
+</PRE>
+<HR>
+<H3>LDAP Error Reasons</H3>
+<PRE>
+   #errors : error reason
+<HR>
+END7
+
+# Error reasons
+@TOPERRS = sort {$ldaperror{$b} <=> $ldaperror{$a}} keys(ldaperror);
+foreach $err (@TOPERRS) {
+    if ($err > 0) {
+        printf "%10d : (%02d) %s\n", $ldaperror{$err}, $err, $LDAP_ERR[$err];
+    } else {
+         printf "%10d : %s\n", $ldaperror{$err}, $err;
+    }
+}
+print <<END8;
+</PRE>
+<HR  NOSHADE>
+<H3>Used Browsers</H3>
+<PRE>
+ #accesses : WWW Browser
+<HR>
+END8
+
+@TOPBROWSER = sort {$BROWSER{$b} <=> $BROWSER{$a}} keys(BROWSER);
+foreach $b (@TOPBROWSER) {
+    printf "%9.2f%% : %s\n", $BROWSER{$b}/$browsers*100, $b;
+}
+
+# That's all, some statistics of the statistics...
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+$endtime = sprintf("%02d/%02d/%2d %02d:%02d", $mday,$mon+1,$year,$hour,$min);
+
+($user,$system,$cuser,$csystem) = times;
+$timeneeded = sprintf("%5.2fs user and %5.2fs system", $user,$system);
+
+print <<ENDE;
+</PRE>
+<HR>
+The web500stat skript started at $starttime processing $lines lines of the
+web500gw/go500gw statistic file, started $comptime computing statistics, needed 
+$timeneeded CPU time and ended at $endtime.
+</BODY>
+</HTML>
+ENDE
+
+print STDERR " Done.\n";
+
+
+sub datecompare {
+   $date1 = index("JanFebMarAprMayJunJulAugSepOctNovDec",substr($a, 4, 3))*400;
+   $date2 = index("JanFebMarAprMayJunJulAugSepOctNovDec",substr($b, 4, 3))*400;
+   $date1 += substr($a, 0, 2);
+   $date2 += substr($b, 0, 2);
+   $date1 - $date2;
+}
+
+# Catch ^C
+sub catch {
+    local($sig) = @_;
+    if ($reading == 1) {
+        warn "\n\007Got SIG$sig - Stop reading \"$ARGV\"!\nDoing statistics for data read so far...\n\n";
+        goto Auswertung;
+    } else {
+        warn "\n\007Got SIG$sig - Stopping!\n";
+        exit;
+    }
+}
+
+# Catch dubios signals
+sub handler {
+    local($sig) = @_;
+    if ($reading == 1) {
+        warn "\n\007Got SIG$sig while reading line $.\n$_\n";
+    } else {
+        warn "\n\007Got SIG$sig - Stopping!\n";
+    }
+    exit;
+}
+
+sub process_line {
+    if ($graph) {
+        print STDERR "\b* " if ($. % $mark == 0);
+        if ($mark2 > 0 && $. % $mark2 == 0) {
+            print STDERR "\b$show[$i++]";
+            $i = 0 if ($i == $#show + 1);
+        }
+    }
+    if (/go500gw.+connection from/) {
+        $gophereq++;
+        $host = $_;
+        $host =~ s/.+connection from (.+) \(.+/$1/;
+        $gopherhost{$host}++;
+        return;
+    }
+    if ((! /web500gw/) || /gethostbyaddr/) {
+        return;
+    }
+    if (/initializing/) {
+        $starts++;
+        return;
+    }
+# Mmm dd hh:mm:ss Serverhost web500gw[PID]: 
+# Host "Request" HTTP-Status (language)/LDAP-error browser
+    chop;
+    $month = substr($_, 0, 3);
+    $day   = substr($_, 4, 2);
+    $date = "$day. $month";
+    $hour  = $date . " " . substr($_, 7, 2);
+    $log = $_;
+    $log =~ s/.+\[\d+\]: //;
+    $log =~ /(\S+) "(.*)" (\d+) (\S+)(.*)/;
+    $host = $1;
+    $host =~ tr/[A-Z]/[a-z]/;
+    $request = $2;
+    $status = $3;
+    $reason = $4;
+    $browser = $5;
+    # print "$log: $host - $request - $status - $reason - $browser\n";
+   
+    $request =~ /(\S+)\s(.+)/;
+    $method = $1;
+    $doc = $2;
+    $doc =~ s#\s+HTTP/1.0##i;   # strip HTTP/1.0
+    
+    if ($method =~ /^GET/i) {
+        $get++;
+    } elsif ($method =~ /^HEAD/i) {
+        $head++;
+    } elsif ($method =~ /^POST/i) {
+        $post++;
+    } else {
+        $other++;
+        # print;
+    }
+    # split request to dn, attr+flags, filter
+    ($dn, $attr, $filter) = split(/\?/, $doc, 3);
+    ($attrs, $flags) = split(/\$/, $attr, 2);
+
+    # Convert %XX from hex numbers to alphanumeric
+    $dn =~ s/%(..)/pack("c",hex($1))/ge;
+    # $attrs =~ s/%(..)/pack("c",hex($1))/ge;
+    $flags =~ s/%(..)/pack("c",hex($1))/ge;
+    # $filter =~ s/%(..)/pack("c",hex($1))/ge;
+
+    $dn =~ s/, /,/g;        # subst. spaces
+    if ($dn =~ /^\/[RLM].+/) {
+        $oldreq++;
+        $dn =~ s#^/[RLM]#/#;
+    }
+    
+    if ($status !~ /^2/) {
+        if ($status =~ /^302/) {
+            $redir++;               # Redirection
+        } elsif ($status =~ /^304/) {
+            $not_modified++;        # If-Modified-Since:
+        } else {                    # Error
+
+            $bindNOTOK++ if ($dn =~ m#^/F# || $flags =~ /form/);
+            $modNOTOK++  if ($dn =~ m#^/Y# || $flags =~ /modify/);
+
+            if ($status eq "400") {
+                $errorcnt[0]++;     # BAD_REQUEST
+                $errors++;
+                $ERRDOCS{"($status, $reason) $dn"}++ if ($TOPERRNU > 0);
+            } elsif ($status eq "401") {
+                $errorcnt[1]++;     # AUTH_REQUIRED
+                $errors++;
+                $ERRDOCS{"($status, $reason) $dn"}++ if ($TOPERRNU > 0);
+            } elsif ($status eq "403") {
+                $errorcnt[3]++;     # FORBIDDEN
+                $errors++;
+                $ERRDOCS{"($status, $reason) $dn"}++ if ($TOPERRNU > 0);
+            } elsif ($status eq "404") {
+                if ($reason eq "0") {
+                    $reason = "No Search Results";
+                    $no_srch++;
+                } else {
+                    $errors++;
+                    $errorcnt[4]++;     # NOT_FOUND
+                    $ERRDOCS{"($status, $reason) $dn"}++ if ($TOPERRNU > 0);
+                }
+            } else {
+                $errorcnt[5]++;     # SERVER_ERROR
+                $errors++;
+                $ERRDOCS{"($status, $reason) $dn"}++ if ($TOPERRNU > 0);
+                # print STDERR "$_\n";
+            }
+            $ldaperror{$reason}++;
+        }
+    } else {                        # 200 OK
+        $bindOK++ if ($dn =~ m#^/F# || $flags =~ /form/);
+        $modOK++  if ($dn =~ m#^/Y# || $flags =~ /modify/);
+
+        if ($TOPNU) {
+            $TOTDOCS{$doc}++;
+            $DOCS{$dn}++;
+        }
+        if ($host =~ /$mydom1.$mydom2/) {       # LOCAL
+            if ($LTOPNU) {
+                $LTOTDOCS{$doc}++;
+                $LDOCS{$dn}++;
+            }
+        } else {
+            if ($RTOPNU) {
+                $RTOTDOCS{$doc}++;
+                $RDOCS{$dn}++;
+            }
+        }
+    }
+    $totalreq++;
+    
+    $REQ{$date}++;
+    $HREQ{$hour}++;
+    $HOSTS{$host}++;
+    if ($browser ne "") {
+        $browsers++;
+        $BROWSER{$browser}++;
+    }
+}

@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<TITLE>Aide de web550gw</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#006600" VLINK="#003300"
+ALINK="#00FF00">
+
+<!--
+   - $Id: web500gw.help.fr,v 1.3 2001/04/26 22:30:40 dekarl Exp $
+  -->
+
+<H2>Passerelle WWW/HTTP - X.500/LDAP</H2>
+
+
+<STRONG><FONT COLOR="#006600">Web500gw</FONT></STRONG>
+Web500gw est une passerelle World Wide Web/HTTP vers X5000/LDAP
+(version 2.1).  Cette passerelle permet d'accèder aux annuaires basé
+sur le protocole LDAP `a partir d'un client WWW. Quelques
+caractéristiques de cette passerelle :
+
+<DL>
+<DT><STRONG>Lecture du contenu de l'annuaire</STRONG><DD>
+    Les attributs des entrées sont affichés, et certains sont gérés spécialement :
+    <UL>
+    <LI>Les ttributs contenant un DN Attributes containing a DN (<TT>seeAlso, roleOccupant</TT>)
+       sont des lines hypertextes vers ce DN.</LI>
+    <LI>Il en bien entendu de même avec les attributs qui contiennent
+un URI (<TT>labeledURI</TT>).
+    <LI>Les attributs contenant une adresse E-mail peuvent être associés à une action spéciale((<TT>mailto:</TT>).
+    <LI>Les photos peuvent être affichées directement en ligne ou
+récupérées au travers de liens hypertextes (Le format JPEG Photos en
+images JPEG ou GIF selon votre client, les photos G3Fax comme des.
+    <LI>Les données Audio peuvent être récupérées au travers d'un lien.
+    </UL>
+	Selon la configuration du serveur, il peut y avoir des actions
+spéciales pour une entrée donnée, par exemple des liens  (e.g. "Show
+more attributes") ou des actions de recherche (e.g. liste des sous-entrées).
+
+<DT><STRONG>Parcours de l'annuaire</STRONG><DD>
+	Les entrées sous un noeud, ordonnées par classes,  peuvent
+être affichées comme des liens. Certains attributs(e.g.
+    <TT>description</TT>) sont directement
+affichés avex l'entrée ou obtenue par traversée d'un lien. Un bouton
+intitulé "Revenir à"permet de remonter dans lárbre de l'annuaire.
+
+<DT><A NAME="search"><STRONG>Recherche</STRONG></A><DD>
+vous trouverez un champ de recherche dans la plupart des pages.
+Au plus haut niveau de l'annuaire, les recherches sont supposées sáppliquer à des pays, des organisations ou des villes. La portée de ces recherche est limitée à ces différents niveaux (<TT>one-level</TT> search).
+Au niveaux inférieurs de l'arbre (organisations or unités d'organisation), les recherches s'applique a des personnes et sáppliquent à tous les niveaux inférieurs. La startégie de recherche par défaut est configurable par l'adminsitrateur.
+
+<P> La recherhce par (UFN) searching est possible, entrez seulement :  
+<BLOCKQUOTE>
+   <TT>Nom, Organisation, Pays</TT>
+</BLOCKQUOTE>
+
+<P> Vous pouvez spécifier des filtres complexes de recherche dans les URL's mais il néxiste pas à l'heure actuelle de forme interactive vous permettant cela.
+
+<DT><STRONG>Modification</STRONG><DD>
+Pour modifier une entrée vous devez vous authentifier auprès de l'annuaire.
+seule une authentification simple est actuellement suppotée (password).
+<p>Il est aussi possible de s'authentifier en tant que manager pour
+modifier une autre entrée.
+<p>Dans le cas ou vous avez été authentifié, vous obtenez une forme
+vous permettant de modifier les attributs.
+</DL>
+Pour plus dínformations, visitez 
+<A HREF="http://web500gw.sourceforge.net/"><STRONG>La
+documentation en ligne de web500gw</STRONG></A>.
+<P>
+<HR>
+<P>
+<STRONG><FONT COLOR="#006600">Web500gw</FONT></STRONG>
+est écrit par
+<A HREF="/cn=Frank%20Richter,ou=Rechenzentrum,o=Technische%20Universitaet%20Chemnitz,%20c=DE">
+Frank Richter</A>, Technical University of Chemnitz, Allemagne.
+Le code est basé sur celui de go500gw, une passerelle Gopher - LDAP
+réalisée par Tim Howes, Netscape Communications Corp.
+Remerciements à Mark Smith, Netscape Communications Corp.,
+Rakesh Patel, Rutgers University and
+<A
+HREF="/cn%3dHallvard%20B%20Furuseth%2c%20ou%3dUniversitetets%20Senter%20for%20Informasjonsteknologi%2c%20o%3dUniversitetet%20i%20Oslo%2c%20c%3dNO">
+Hallvard B Furuseth</A> Université d'Oslo University pour leurs
+contributions.
+Merci à tous les autres pour leur corrections de bug, leurs
+sugestions, leurs conseils et leurs questions.
+<P>
+Si vous avez des questions, des suggestions ou des commentaires à
+faire sur ce logiciel, envoyez un message à <A HREF="mailto:Frank.Richter@Hrz.TU-Chemnitz.DE">
+Frank.Richter@Hrz.TU-Chemnitz.DE</A>.
+
+<P><STRONG>Important : L'auteur ne peut être tenu pour responsable de
+la correction ou du contenu des données dans l'annuaire.
+</STRONG>
+<P>
+Pour plus d'information sur les annuaires, les protocoles  X.500 and
+LDAP veuillez vous reporter aux liens suivant :
+<UL>
+<LI><A HREF="http://www.bath.ac.uk/~ccsap/Directory/x500.html">the Directory
+    Services pages at Bath University, UK</A>. 
+<LI><A HREF="http://www.nexor.co.uk/public/directory.html">X.500 
+    information at NEXOR</A>
+<LI><A HREF="http://www.umich.edu/~rsug/ldap/">LDAP information at the 
+    University of Michigan</A>.
+</UL>
+
+<P>
+<HR>
+<A HREF="/cn=Frank%20Richter,%20ou=Rechenzentrum,%20o=Technische%20Universitaet%20Chemnitz,%20c=DE"> Frank Richter</A>,
+<A HREF="/o=Technische%20Universitaet%20Chemnitz,c=DE">
+Technical University of Chemnitz</A>, 
+<A HREF="/c=DE">Germany</A>.
+</BODY>
+</HTML>

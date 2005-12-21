@@ -1,0 +1,176 @@
+Version 2.1rc1 (03.07.2001)
+ * bug fix - added correct parsing of 2 AND 4 digit years in results
+   from LDAP queries
+   submitted by: Jim Dutton
+ * typo fix - the link after succesfully adding an entry was generated wrong
+   obtained from: web500gw homepage
+ * bug fix - modify now calls the correct templates instead of
+   only calling up the default template
+   obtained from: web500gw homepage
+
+Version 2.1b3 (28.10.1998)
+ * More languages: Spanish/Castellano and French, 
+   thanks to Javier.Massa@rediris.es and kubek@insa-tlse.fr
+ * control the Web caching of generated pages, added "lastmodified" and 
+   "expires" options
+ * checked for OpenLDAP 1.0 - no changes needed :-)
+ * changed messages - now simpler "placeholders" %<number> to include
+   runtime values (independent of system's fprintf supports "%<number>$s")
+ * multiple searchactions in template possible with multiple attributes/flags
+ * added a "rootishome" option: if set then URL "/" means "homedn"
+ * delete and modrdn operation 
+ * bug fixes - string operations/malloc/free
+ * changes for Digital Unix 4 and Unixware 7
+ * added a "subsearch" option to specify objectclasses to search subtree below
+ * cgi-mode broken - fixed
+
+Version 2.1b2 (25.03.1998)
+ * Use of templates "authattrname" to specify how to authenticate for modify/add
+ * Flag "deref" to request dereferencing aliases during a search
+ * Varios bug fixes
+
+Version 2.1b1 (11.03.1998)
+ * New URL syntax:  [/ldaphost:port]/DN?...  optional ldap server
+ * CGI mode: use as nph-cgi program possible
+ * Support for add, modify is now rewritten.
+ * Flag -t URL-path: Send HTML output to STDOUT - for testing!
+ * Added vCard support
+ * Configurable log format
+ * A config file for all the options ...
+ * Support for Access rules, Browsers, Languages
+ * All 3 HTTP date formates supported now - for If-Modified-Since:
+ * Changing of userPassword is now possible
+ * Different languages in one server:
+     - default language, Accept-Language: (HTTP), Flag: lang=XX
+ * Allow simple auth. with password for web500gw-DN
+ * Fixes for boolean attributes, search and linkactions
+ * Nearly all HTML tags in the message file: allow more output control
+ * Don't include modify code if not def'd MODIFY
+ * Robot stopper, thanks to  Hans Klunder <klunder@rc.tudelft.nl>
+ * Dereferencing of aliases: -a flag now does resolving -> 
+      aliases will be listed in "real" objectclasses
+ * Debug code changed: various debugging levels, #ifdef'd
+      flag -D for LDAP debugging
+
+Version 2.0b (15.02.96)
+ * Some changes for LDAP-3.2
+ * If-Modified-Since: support
+ * T.61 <-> ISO 8859-1
+ * HTTP error codes changed
+ * upsearch on buttom in search page
+ * some debug output cleanup
+ * default for browser_opt (if no User-Agent: in HTTP request given)
+
+Version 2.0a (15.08.95)
+ * WWW client specifica
+ * new URL format:  /DN[?attr1[,[attrn]][$flags][?{OS}=filter]]
+ * -s suffix to use different message/template/friendly files - language
+   support
+ * use of a messagefile -> easier multi-language support
+ * BANNER/TRAILER for each page
+ * use of LDAP-3.1  template functions -> file based configuration of display 
+ * a manual page (doc/web500gw.8)
+ * Changed format of logfile: 
+   <syslog specific: Date Host Proc[Pid]:> Clienthost "Request" Code (Language)
+
+Version 1.5a (never officially released)
+ * Another screen to ask for user/password for modify - it's possible to
+   bind as a DS-Manager to modify another entry.
+ * help functions for modify form (click on attribute names will give
+   users some help on attribute)
+ * make "Move upwards to" as a menu form (works for Mosaic but doesn't for lynx)
+   (#ifdef UP_MENU)
+ * use the new HIDDEN input type for the userPassword in Modify form --
+   BUT old browsers will see the password! (#ifdef HIDDEN)
+ * included Rakesh B. Patel's code for Kerberos based authentication
+   and Rutgers specifics (#if defined(KERBEROS5) && defined(RUTGERS)) and
+   SEARCH_ON_TOP    - search field before the non-leaf entry link
+   Using this SEARCH_ON_TOP define with the UP_ON_BOTTOM define results in a 
+   lynx friendly setup without causing any inconvenience to the full-featured 
+   client like Mosiac.
+ * splitting web500gw.c :
+    web500gw.h  - all the defines/includes/declarations and user changable stuff
+    web500gw.c  - the main functions
+    util.c      - the utility functions like (de)coding etc.
+    kerb.c      - RUTGERS kerberos code
+ * Daniel Harris <daniel@reubio.apana.org.au>: changes for NetBSD
+ * NDEMAGALHAES@worldbank.org: one mod for DEC/OSF1 machines
+ * Zeljko.Horvat@uni-konstanz.de: Windows Mosaic expects a file extension
+   for images (*.gif) to display inline images ... #ifdef WINHACK  ugly hack!!!
+ * lookup the basedn via ldap, so we use the same format (ie spacing) as the dn
+   for strcmp
+   UP_ON_BOTTOM     - place "Move upwards to" section on buttom of page
+   suggested by Mark Prior <mrp@itd.adelaide.edu.au>
+ * bug in clean_ufn(): infinite loop when '=' in RDN
+ * never show userPassword's (even if not ACL protected)
+
+Version 1.4 (25.5.94)
+
+ * some portability hacks for HP-UX 9 and ULTRIX 4.3
+ * read HTTP request from client correct (to \r\n\r\n)
+ * after search: added the friendly description on type of matching 
+   (Russ Wright <wright@lbl.gov>)
+ * added an English ldapfriendly file (by Rakesh B. Patel)
+ * cleanup/redesign (sort_result(), friendly_dn(), format_date()...)
+ * changes headlines (DN's) to <H1>
+
+Version 1.3 (not announced...)
+
+ Suggestions/patches of Rakesh B. Patel <rapatel@noc.rutgers.edu> discussed 
+ and included:
+   * Full sorting of both list and search menus
+     Sort string is: friendly objectClass + surname (if one) + DN
+   * show the entry if only one match occurs (if defined SHOWSINGLEENTRY)
+   * BASEDN: - starting point for http://host:port/
+             - allow Modify only below BASEDN
+   * include html code at the top/bottom of the body from a file 
+     (DEFAULT_TOP_OF_BODY_FILE, DEFAULT_END_OF_BODY_FILE), when list of BASEDN 
+     (if defined)
+   * Email addresses become "finger links"(if definded MAIL_FINGER)
+   * "Move upward to" links on top of list/read pages
+   * "Move to" links on read page of non-leaf entry
+   * some "RUTGERS" specific code (if defined RUTGERS)
+   * list of search results relative to the search location (not only one RDN 
+     if there are more)
+   * experimental code for "labeledURL" attribute (if defined URL_SUPPORT)
+
+ * some static config of modify form (mod_attr), what entries we will let
+   to modify (mod_oc) -> BUT Modify still needs attention!
+ * do_modify: first delete old val, then add new value
+ * multiline attrs in forms
+ * Bug: add a fflush at the end of do_form/do_modify
+ * wrong Content-length in images corrected
+ * multiple attribute values now on multiple lines (<BR>)
+ * Bug: debug output not in if (debug) -> error when under inetd, 
+        error when no lastModifiedTime ==> cleaned
+
+Version 1.2a (18.2.94)
+
+ * some cosmetics and cleanup
+ * initial Modify stuff, still experimental and optional (if defined MODIFY);
+ * nonLeafObjects with "no children" now correctly handled;
+ * a search below searchACL protected entries now possible;
+ * some #ifdefs to enable/disable features (SHOWALL);
+ * added a SUBMIT button to search form (HTML+ and lynx requ. one);
+ * HOSTNAME and myhost deleted (not needed anymore)
+ * Now understand the HTTP HEAD request;
+ * give also Content-Length and Last-Modified, where possible;
+ * added a "See all attributes";
+ * changed Copyright note (now BSD like);
+
+ Mark Smith <mcs@umich.edu>:
+    * not trying so hard to determine what is leaf or non-leaf;
+    * changes to use UFNs as much as possible for display purposes;
+    * addition of entry count (e.g., "(5 entries)") to entry lists;
+    * small changes to the entry display HTML to be more like gopher;
+    * addition of more #ifdef UOFM "dn" attributes;
+    * enlargement of cmd buffer, log image size;
+
+Version 1.1 (4.2.94):
+
+ * Better handling of en/decoding of URL strings;
+ * multiple DN's in attributes now correctly handled, added more
+ * DN attributes;
+ * added some stuff for modify, still not working, but on the way
+
+Initial version 1.0 (12.1.94)

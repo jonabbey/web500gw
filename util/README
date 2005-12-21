@@ -1,0 +1,11 @@
+Some utilities for web500gw:
+
+domain.codes.txt        list of toplevel domains and names (for web500stat)
+g3toxbm                 Sample script to convert G3-Fax photos to xbm
+web500stat    ... has to be updated!
+            Perl script to get some usage statistics from the logfile 
+            written via syslog.
+            Usage: web500stat logfiles... or
+                   web500stat -           to read from stdin
+
+

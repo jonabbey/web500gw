@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# $Id: g3togif,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+# Example filter: G3FAX -> GIF
+# uses: g3topbm
+#       ppmtogif        from netpbm package
+
+/uni/global/bin/g3topbm -kludge | /uni/global/bin/ppmtogif
+
+# or you can use
+#	faxtopbm	from isode-8 package
+#/usr/local/isode/sbin/g3fax/faxtopbm | /uni/global/bin/ppmtogif
+
+
+

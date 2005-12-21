@@ -1,0 +1,81 @@
+                      web500gw: Installation
+                      ----------------------
+
+0. Make the ldap distribution (OpenLDAP 1.0, UMich version 3.3 or 
+ISODE Consortium's release) if you have not already done so.
+
+In the web500gw directory:
+
+  1. Tailor Makefile:
+      INSTDIR             The directory name where to install the web500gw
+                          binary.
+      MANDIR              The directory name where to install the manual.
+      WEB500GWDIR         The directory name where to install
+                          config/help/message files. Should be a separate
+                          directory.
+      SUFFIX              What language dependent files should be
+                          installed? "" stands for english (default)
+                          versions.
+      DEFINES             Enable/disable some features:
+                           -DMODIFY           enables MODIFY feature --
+                                              STILL EXPERIMENTAL!
+                           -DSUPPORT_OLD_URLS if you're upgrading from
+                                              older version you may wish
+                                              this.
+                           -DWEB500GW_DEBUG   include debugging code
+                                              (enables Flag -d)
+
+      LDAPINCL            Location of the LDAP header files. Leave empty if
+                          installed in /usr/include.
+      LDAPLIBS            The LDAP libraries libldap and liblber.
+      LDAPVERSION,        LDAP version information, see comments in the
+      VERSION             Makefile.
+      STR_TRANSLATION     If you didn't define T.61 - ISO-8859-1
+                          translation in the LDAP package, comment out this
+                          line.
+      platform specific   Uncomment the definitions for your platform.
+      defines
+
+  2. Optional: Tailor web500gw's default values for your site: edit config.h
+     All the values could be set the web500gw.conf configuration file, so
+     you probably don't need to edit there..
+
+  3. Make and install web500gw:
+
+       make                 - makes web500gw
+       make -n install      - check installation
+       # make install       - install it (as root, if installing to system dirs)
+
+  4. Configure web500gw - see http://web500gw.sourceforge.net[B/
+
+  5. Start web500gw
+     Test modus - will print HTML output to STDOUT and exit:
+          web500gw -t /    or
+          web500gw -d 1 -t /    to run in debug mode - see Debug options
+     As stand-alone server:
+          web500gw    or
+          web500gw -d 1   to run in debug mode - see Debug options
+
+  6. Try it out! Run a WWW browser and point it to an appropriate URL to
+     access web500gw. Some example URL's are given below, with the things
+     you should change given in <>'s:
+
+        http://<host.running.web500gw>:8888/
+             - List (Menu) on root level
+        http://<host.running.web500gw>:8888/c=DE
+             - List on c=DE level
+        http://<host.running.web500gw>:8888/o=Technische%20Universitaet%20Chemnitz,c=DE
+             - Read entry
+        http://<host.running.web500gw>:8888/H
+             - Help page
+
+     Of course, you would substitute your own organization's DN. Later you
+     will probably add a link to web500gw in an HTML file on your WWW
+     server.
+
+  7. If it doesn't work: Manual web500gw.8, Trouble-shooting.
+
+See also: http://web500gw.sourceforge.net/
+
+------------------------------------------------------------------------
+Frank Richter, Frank.Richter@hrz.tu-chemnitz.de

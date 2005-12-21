@@ -1,0 +1,78 @@
+<DL>
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE">
+<STRONG>/DN</STRONG></A>
+<DD>Display of an entry (attributes and flags server defined,
+with possible additional functions, e.g. list below nonleaf objects,
+modify button)
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/cn%3dEnrico%20Mowitz%2c%20ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?telephoneNumber">
+<STRONG>/DN?telephoneNumber</STRONG></A>
+<DD>Specified attribute of an entry
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/cn%3dEnrico%20Mowitz%2c%20ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?$list">
+<STRONG>/DN?$list</STRONG></A>
+<DD>Entry with all attributes (server defined) with special display
+flags
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/cn%3dEnrico%20Mowitz%2c%20ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?vcard">
+<STRONG>/DN?vcard</STRONG></A>
+<DD>vCard for an entry
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/cn%3dEnrico%20Mowitz%2c%20ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?telephoneNumber,mail,postalAddress$table">
+<STRONG>/DN?telephoneNumber,mail,postalAddress$table</STRONG></A>
+<DD>Entry with user-defined attributes and display flags
+</DL>
+
+<DL>
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE??">
+<STRONG>/DN??</STRONG></A>
+<DD>Search for all entries below DN, show result with server defined
+attributes and flags <STRONG>(Browse)</STRONG>
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?description?">
+<STRONG>/DN?description?</STRONG></A>
+<DD>Search for all entries below DN, show result with the specified
+attribute
+(flags server defined)
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?$table?">
+<STRONG>/DN?$table?</STRONG></A>
+<DD>Search for all entries below DN, show result with display flags
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?$btable,oneline?">
+<STRONG>/DN?$btable,oneline?</STRONG>
+</A>
+<DD>Another example (compact table with border)
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?telephoneNumber,mail$btable,valsonly?">
+<STRONG>/DN?telephoneNumber,mail$btable,valsonly?</STRONG></A>
+<DD>Table of all entries with 2 attributes (<STRONG>"Telephone
+Book"</STRONG>)
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE?jpegPhoto$btable,valsonly?S=(%26(objectclass=person)(jpegPhoto=*))">
+<STRONG>/DN?jpegPhoto$btable,valsonly?S=(&(objectclass=person)(jpegPhoto=*))</STRONG></A>
+<DD>Search for all persons with JPEG Photo, displayed as a table
+<DT><A HREF="http://oedipus.hrz.tu-chemnitz.de:8888/M">
+<STRONG>/M</STRONG></A>
+<DD>Special URL: "Homepage"
+</DL>
+
+
+<H2>Old go500gw like URL's</H2>
+are supported if compiled with <CODE>SUPPORT_OLD_URLS</CODE> (see
+Makefile).
+<DL>
+<DT><A HREF="http://oedipus.hrz.tu-chemnitz.de:8888/Mc=DE">
+<STRONG>/M</STRONG>DN</A>
+<DD>Browse below DN
+<DT><A
+HREF="http://oedipus.hrz.tu-chemnitz.de:8888/Rcn%3dFrank%20Richter%2c%20ou%3dRechenzentrum%2c%20o%3dTechnische%20Universitaet%20Chemnitz%2c%20c%3dDE">
+<STRONG>/R</STRONG>DN</A>
+<DD>Read an entry
+<DT><A HREF="http://oedipus.hrz.tu-chemnitz.de:8888/Sc%3dDE?O=ch">
+<STRONG>/S</STRONG>DN<STRONG>?S=</STRONG>filter</A>
+<DD>Search below DN for filter
+</DL>
+

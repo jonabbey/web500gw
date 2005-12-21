@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# $Id: g3toxbm,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+# Example filter: G3FAX -> X-bitmap
+# uses: g3topbm
+#       pbmtoxbm        from pbmplus-10.dec.91 package
+
+/uni/global/bin/g3topbm -kludge | /uni/global/bin/pbmtoxbm
+
+# or you can use
+#	faxtopbm	from isode-8 package
+#/usr/local/isode/sbin/g3fax/faxtopbm | /uni/global/bin/pbmtoxbm
+
+
+

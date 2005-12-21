@@ -1,0 +1,770 @@
+#
+# "Fichier de Messages" Francais pour web500gw
+# Author: Frank.Richter@hrz.tu-chemnitz.de
+# Traducteur : kubek@insa-tlse.fr
+# --> ANY HINTS WELCOME!
+#
+# $Id: web500gw.messages.fr,v 1.2 2001/04/26 22:16:53 dekarl Exp $
+#
+
+# Local gateway admin - YOU - please change...
+:ADMIN <A HREF="mailto:kubek@insa-tlse.fr">Admin</A>
+
+# HTML elements
+# HTML start sequence
+# Entry: %1 = RDN, %2 = UFN
+:HTML_START_ENTRY <HTML><HEAD><TITLE>web500gw: %1</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+# Search results: %1 = search filter, %2 = base DN
+:HTML_START_SEARCH_RESULTS <HTML><HEAD>
+<TITLE>web500gw: Résultats de la recherche : %1</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+# No search results: %1 = search filter, %2 = base DN
+:HTML_START_NO_SEARCH_RESULTS <HTML><HEAD>
+<TITLE>web500gw: Aucun résultat pour la requête : %1</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+# Misc: Bind/Modify: %1 = what (), %2 = RDN, %3 = UFN
+:HTML_START_MISC <HTML><HEAD><TITLE>web500gw: %1 - %2</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+# Error: %s = NO_SEARCH_RESULTS_TITLE | ERROR
+:HTML_START_ERROR <HTML><HEAD><TITLE>web500gw: %s</TITLE></HEAD>
+<BODY BGCOLOR="#FFFFFF"> 
+
+# HTML closing sequence
+:HTML_END   </BODY></HTML>
+
+# The standard banner/trailer for every page
+# specify a ' ' (space) if you don't want it
+# %1 = current query, 
+# %2 = other languages menu, %3 = other languages links
+:BANNER <DIV ALIGN="center">[<A HREF="H?$lang=fr">Aide</A>] 
+<!-- %1 %2 -->
+%3
+<H1 ALIGN="center">Service d'Annuaire (Hors de l'INSA)</H1>
+</DIV><HR>
+
+# Empty
+:TRAILER 
+
+# Banner/trailer for the pages below HomeDN
+# %1 = current query
+# %2 = other languages menu, %3 = other languages links
+:HOMEBANNER <DIV ALIGN="center">[<A HREF="H?$lang=fr">Aide</A>] 
+<!-- %1 %2 -->
+%3
+<H1 ALIGN="center">Service d'Annuaire Insa Toulouse</H1>
+</DIV><HR>
+
+:HOMETRAILER 
+
+# Banner/trailer for an error page
+# %s = current query
+:ERRORBANNER <DIV ALIGN="center"><A HREF="H?$lang=fr">[Aide]</A> 
+<A HREF="%s">[Réessayer]</A></DIV><HR>
+
+# %1 = current query, %2 = ADMIN
+:ERRORTRAILER <P><!-- %1 --><HR>
+Pouvez vous s'il vous plaît signaler toute erreur ou bug l'administrateur : %2.
+
+
+##################### Display of entries
+# Entry name
+# %1 = RDN, %2$S = UFN
+:ENTRY_HEADER   <H1 ALIGN=center><A NAME="entry">%1</A></H1>
+
+# HTML code used to display attributes
+# %1 = URL, %2 = format, %3 = label
+:IMG               <IMG SRC="%1" ALT="%2 %3">
+:TABLE             <TABLE WIDTH="95%" ALIGN="center">
+:TABLE_FORM        <TABLE ALIGN="center">
+:TABLE_BORDER      <TABLE WIDTH="95%" BORDER="2" ALIGN="center">
+:TABLE_BORDER_FORM <TABLE BORDER="2" ALIGN="center">
+:HR                <P><HR NOSHADE><P>
+
+# attribute name: %1 = name, %2 = empty or ":"
+:ATTR_NAME     <STRONG><I>%1%2 </I></STRONG>
+:ATTR_NAME_TD  <TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=top WIDTH="30%">
+
+# Search: values only (valsonly)
+# attribute name: %s
+:ATTR_NAME_TH_SEARCH <TH ALIGN=center BGCOLOR="#e0e0e0">%s</TH>
+# Search: attibutes + values
+:ATTR_NAME_TD_SEARCH <TD ALIGN=left BGCOLOR="#e0e0e0">
+
+# attribute value
+:ATTR_VAL   %s
+:ATTR_VAL_TD    <TD ALIGN=left>
+
+# Linkaction (ldaptemplates.conf)
+# %1 = URL, %2 = Label
+# as form button
+# :LINKACTION <FORM ACTION="%1"><INPUT TYPE="submit" VALUE="%2"></FORM>
+# or simple link
+:LINKACTION <A HREF="%1"><STRONG>%2</STRONG></A>
+
+# objectclass in lists/tables
+:OC_NAME         <STRONG><BIG>%s</BIG></STRONG>
+:OC_NAME_TR      <TR><TD ALIGN=left VALIGN=top BGCOLOR="#e0e0e0">
+:OC_NAME_TR_COLS <TR><TD ALIGN=center VALIGN=top COLSPAN=%d BGCOLOR="#e0e0e0">
+
+# links to entries
+# %1 = URL, %2 = UFN, %3 = DN
+# %4 = string encoded UFN, %5 = string encoded DN
+#  4/5  - for use in JavaScript - string literals
+:HREF_LEAF          <!-- %3 %4 -->
+<A HREF="%1" onMouseover="window.status='See %5';return true;">%2</A>
+:HREF_NON_LEAF      <!-- %3 %4 -->
+<A HREF="%1" onMouseover="window.status='Go to %5';return true;"><STRONG>%2</STRONG></A>
+
+# aliases: %1 = URL, %2 = alias UFN, %3 = UFN, %4 = DN
+# %5 = string encoded UFN, %6 = string encoded DN
+#       - for use in JavaScript - string literals
+:HREF_ALIAS_TO_LEAF <!-- %5 %4 -->
+<A HREF="%1" onMouseover="window.status='See %6';return true;"><EM>%2</EM> -&gt; %3</A>
+:HREF_ALIAS_TO_NONLEAF  <!-- %5 %4 -->
+<A HREF="%1" onMouseover="window.status='Go to %6';return true;"><EM>%2</EM> -&gt; <STRONG>%3</STRONG></A>
+
+# DNs without links (Flag nohrefdn):
+# %1 = UFN, %2 = DN
+:DN_LEAF          %1
+:DN_NON_LEAF      %1
+
+# Alias: %1 = alias UFN, %2 = UFN, %3 = DN
+:DN_ALIAS_TO_LEAF     <EM>%1</EM> -&gt; %2
+:DN_ALIAS_TO_NONLEAF  <EM>%1</EM> -&gt; <STRONG>%2</STRONG>
+
+# A string to use when refering to the "X.500 root"
+:ROOT			Le Monde
+# boolean values true, false
+:TRUE   TRUE
+:FALSE  FALSE
+:NO_HELPFILE  Fichier d'aide inaccessible!
+:URL          URL
+:URL_INFO     Info&nbsp;
+
+
+##################### Navigation and search forms
+# Navigation and search as menu in table
+# %1 = moveup action,     %2 = Navigation as <SELECT> menu
+# %3 = search action URL, %4 = ONELEVEL | SUBTREE, 
+# %5 = RDN (search base), %6 = UFN (search base), 
+# %7 = scope (don't change) %8 = Link für erweiterte Suche
+:NAV_MENU  <P>
+<!-- %6 -->
+<TABLE ALIGN="center" BORDER="0" 
+  CELLPADDING="0" CELLSPACING="0" BGCOLOR="#000000" WIDTH="95%%">
+<TR><TD>
+<TABLE BORDER="0" WIDTH="100%%" CELLPADDING="5" CELLSPACING="1" BGCOLOR="#e0e0e0">
+<TR ALIGN=center><TD VALIGN=middle>
+  <FORM ACTION=""><!-- NAV_MENU -->
+   <STRONG><INPUT TYPE=submit VALUE="Visiter un niveau supérieur"></STRONG><BR>
+   %2
+  </FORM>
+ </TD>
+ <TD ALIGN=center>
+  <FORM ACTION="%3">
+   <A NAME="search_form"><STRONG>Rechercher %4 </STRONG> dans</A> <STRONG>%5</STRONG>:<BR>
+   <INPUT SIZE="15" NAME="%7">
+   <STRONG><INPUT TYPE=submit VALUE="RECHERCHER"></STRONG>
+   <INPUT TYPE=reset VALUE="Réinitialiser"><BR>
+     <A HREF="%8">Recherche Avancée</A> - <A HREF="H?$lang=fr#search">Aide à la recherche</A>
+  </FORM>
+ </TD>
+</TR>
+</TABLE>
+</TD></TR></TABLE>
+
+# Navigation as list and search
+# see NAV_MENU, but %2 = Navigation as <LI> entries
+:NAV_LIST Revenir à
+ <UL>
+ <!-- %1 %6 -->
+    %2
+ </UL>
+ <FORM ACTION="%3">
+   <A NAME="search_form">%4 rechercher dans</A> <STRONG>%5</STRONG>:
+   <INPUT SIZE="15" NAME="%7">
+   <STRONG><INPUT TYPE=submit VALUE="RECHERCHER"></STRONG>
+   <INPUT TYPE=reset VALUE="Réinitialiser"><BR>
+   <A HREF="%8">Recherche Avancée</A> - <A HREF="H?$lang=fr#search">Aide à la recherche</A>
+ </FORM>
+
+# Navigation as simple links and search
+# see NAV_MENU, but %2 = Navigation as strings with links
+:NAV_SMALL <!-- %1 %6 -->
+: <STRONG>%2</STRONG><BR>
+ <FORM ACTION="%3">
+   <A NAME="search_form">%4 rechercher dans</A> <STRONG>%5</STRONG>:
+   <INPUT SIZE="15" NAME="%7">
+   <STRONG><INPUT TYPE=submit VALUE="RECHERCHER"></STRONG>
+   <INPUT TYPE=reset VALUE="Réinitialiser"><BR>
+   <A HREF="%8">Recherche Avancée</A> - <A HREF="H?$lang=fr#search">Aide à la recherche</A>
+ </FORM>
+
+:ONELEVEL		dans le niveau courant
+:SUBTREE		dans les niveaux inférieurs
+
+# Enhanced search formular
+# %1 = search action URL, %2 = current search base 
+# %3 = current search base (friendly)
+# %4 = current country,   %5 = current org
+# form NAMEs: base = search base
+#             filtertemplate = a template for search filter
+#             objectclass = objectclass to search for
+#             searchattr = search value in attribute
+#             query = value to seach for
+#             match = matching template
+#             attr = show attributes, flags = flags
+#             args=val=arg&...&endargs = combination of above variables
+:EXT_SEARCH_FORM_TITLE Recherche Avancée
+:EXT_SEARCH_FORM
+<H1 ALIGN=center>Recherche Avancée</H1>
+<FORM ACTION="%1" METHOD=POST>
+<INPUT TYPE="hidden" NAME="filtertemplate" VALUE="(&(objectclass=%%v1)(%%v2))">
+<TABLE BORDER="0" CELLPADDING="1" CELLSPACING="0" BGCOLOR="#000000"ALIGN="center">
+<TR><TD>
+<TABLE WIDTH="100%%" BGCOLOR="#FFFFFF" CELLPADDING="5" BORDER="0" CELLSPACING="0">
+<TR><TH ALIGN="right" BGCOLOR="#e0e0e0">Rechercher dans :</TH>
+    <TD COLSPAN="2"><STRONG>
+   <SELECT NAME="args">
+   <OPTION VALUE="base=%2&endargs">%3
+   <OPTION VALUE="base=o=Technische Universitaet Chemnitz,c=DE&endargs">TU Chemnitz
+   <OPTION VALUE="ldapserver=ldap.bigfoot.com&base=&flags=nodn&endargs">Bigfoot
+   <OPTION VALUE="ldapserver=ldap.four11.com&base=&flags=nodn&endargs">Four11
+   <OPTION VALUE="ldapserver=ldap.switchboard.com&base=c=US&flags=nodn&endargs">Switchboard 
+   <OPTION VALUE="ldapserver=ldap.infospace.com&base=c=US&flags=nodn&endargs">Infospace
+   <OPTION VALUE="filtertemplate=(%%25v2)&ldapserver=ldap.whowhere.com&base=&attr=cn&flags=nodn&endargs">Whowhere
+   </SELECT></STRONG>
+  </TD>
+</TR>
+<TR><TH ALIGN="right" BGCOLOR="#e0e0e0">pour :</TH>
+    <TD COLSPAN=2 ALIGN=center>
+       <SELECT NAME="objectclass">
+       <OPTION VALUE="person">Personne
+       <OPTION VALUE="organizationalUnit">Département
+       <OPTION VALUE="room">Salle
+       <OPTION VALUE="*">N'importe lequel
+       </SELECT>avec
+       <SELECT NAME="searchattr">
+       <OPTION VALUE="cn">Nom
+       <OPTION VALUE="sn">Prénom
+       <OPTION VALUE="mail">E-Mail
+       <OPTION VALUE="description">Description
+       <OPTION VALUE="ou">Département
+       </SELECT>
+       <SELECT NAME="match">
+       <OPTION VALUE="%%a=*%%v*">contient :
+       <OPTION VALUE="!(%%a=*%%v*)">ne contient pas :
+       <OPTION VALUE="%%a~=%%v">se prononce comme (soundex) :
+       <OPTION VALUE="%%a=%%v">est :
+       </SELECT>
+       <INPUT NAME="query" SIZE=45>
+</TD></TR>
+<TR><TH ALIGN="right" BGCOLOR="#e0e0e0">Voir <BR> les attributs :</TH>
+    <TD>
+       <SELECT NAME="attr" SIZE="5" MULTIPLE>
+       <OPTION VALUE="mail" SELECTED>E-Mail
+       <OPTION VALUE="telephoneNumber" SELECTED>Téléphone
+       <OPTION VALUE="vcard">vCard
+       <OPTION VALUE="postalAddress">Adresse
+       <OPTION VALUE="labeledURL">URL
+       <OPTION VALUE="jpegPhoto">Photo
+       <OPTION VALUE="description">Description
+       </SELECT></TD>
+    <TD>as 
+      <SELECT NAME="flags">
+      <OPTION VALUE="btable" SELECTED>Table (encadrée)
+      <OPTION VALUE="table">Table
+      <OPTION VALUE="list">Liste
+      <OPTION VALUE="oneline">Compact
+      </SELECT>
+      <P>
+      <INPUT TYPE="checkbox" NAME="flags" VALUE="valsonly" CHECKED> Seulement les valeurs      <INPUT TYPE="checkbox" NAME="flags" VALUE="entryonly" CHECKED> Seulement les résultats
+</TD></TR>
+<TR>
+  <TD COLSPAN=3 BGCOLOR="#e0e0e0" ALIGN=center>
+  <STRONG><INPUT TYPE=submit VALUE="SEARCH"></STRONG>
+  <INPUT TYPE=reset VALUE="Réinitialiser">
+</TD></TR>
+</TABLE></TD></TR></TABLE>
+</FORM>
+
+
+##################### Search results
+:NO_LIST_ACCESS
+VOus ne pouvez pas effectuer de recherche globale à partir d'ici.
+Si vous connaissez la personne que vous recherchez, choisissez
+l'option <STRONG><A HREF="#search_form">Recherche</A></STRONG> 
+et indiquez le nom de l'entrée que vous recherchez.<P>
+:NOTHING_FOUND_READORSEARCH	Il n'y a rien sous cette entrée !
+Vous pouvez consulter l'entrée elle-même ou essayer une recherche ...
+
+# Search results
+# %1 = search filter, %2 = base DN
+# %3 = # of matches, %4 = ENTRY || ENTRIES, %5 = filter description
+:SEARCH_RESULTS		<P>
+<TABLE ALIGN="center" BORDER="0"
+  CELLPADDING="0" CELLSPACING="0" BGCOLOR="#000000" WIDTH="95%%">
+<TR><TD>
+<TABLE BORDER="0" WIDTH="100%%" CELLPADDING="5" CELLSPACING="1">
+<TR><TD ALIGN="RIGHT" BGCOLOR="#E0E0E0"><A NAME="search">Résultats de la recherche</A> pour</TD>
+    <TD BGCOLOR="#FFFFFF"><STRONG>%1</STRONG></TD></TR>
+<TR><TD ALIGN="RIGHT" BGCOLOR="#E0E0E0">sous</TD>
+    <TD BGCOLOR="#FFFFFF"><STRONG>%2</STRONG></TD></TR>
+<TR BGCOLOR="#E0E0E0"><TD ALIGN="center" COLSPAN="2"><I>%3 %4 entrées trouvées
+         (<STRONG>%5</STRONG>).</I></TD></TR>
+</TABLE></TD></TR>
+</TABLE>
+
+:ENTRY		entrée
+:ENTRIES	entrées
+:UFN        UFN
+:COMPLEX_FILTER complex search filter
+
+# No search result
+# %1 = search filter, %2 = base DN
+:NO_SEARCH_RESULTS     <TABLE ALIGN="center">
+<TR><TD ALIGN="RIGHT"><A NAME="search">Je n'ai rien trouvé</A> pour</TD>
+    <TD><STRONG>%1</STRONG></TD></TR>
+<TR><TD ALIGN="RIGHT">sous</TD>
+    <TD><STRONG>%2</STRONG></TD></TR>
+</TABLE><HR>
+
+# Error in search specification
+:MISSING_FILTER         Filtre absent
+:MISSING_SCOPE          Portée absente
+:MISSING_SEARCHVALUE    Pas de valeur à rechercher
+:SPECIFY_SEARCHVALUE    Veuillez indiquer une valeur de recherche
+:SPECIFY_SUBTREE_SEARCHVALUE	 Veuillez indiquer une valeur de recherche ou   <tt>*</TT> pour effectuer une recherche selon un schéma.
+
+# Redirect: exactly one search result
+# - for old browsers - new browsers will connect automatically
+# %1 = HREF, %2 = DN
+:REDIRECT <DL><DT>Une entrée à ét' trouvée: <DD><A HREF="%1">%2</A></DL>
+
+
+##################### Modification
+# Bind
+# for <TITLE>
+:ASK_FOR_BIND       Demander une information utilisateur
+
+# Bind form
+# %1 = RDN, %2 = UFN, %3 = ACTION URL, 
+# %4 = Bind DNs as SELECT OPTIONS or INPUT field
+:BIND_FORM       <DIV ALIGN="center">Pour modifier l'entrée de
+<H2 ALIGN="center">%1</H2>
+<!-- %2 -->
+vous devez vous authentifier auprés de l'annuaire.
+</DIV>
+<FORM METHOD=POST ACTION="%3">
+<TABLE ALIGN="center">
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+        <STRONG>Sáuthentifier comme l'utilisateur :</STRONG></TD>
+    <TD>%4</TD>
+</TR>
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+        <STRONG>Mot de passe pour cet utilisateur :</STRONG></TD>
+    <TD><INPUT TYPE="password" NAME="userPassword"></TD></TR>
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=top>
+        <STRONG>Modifier :</STRONG></TD>
+    <TD>
+     <INPUT TYPE="radio" NAME="attrs" VALUE="" CHECKED> Entrée
+     &nbsp;&nbsp;&nbsp;&nbsp;
+     <INPUT TYPE="radio" NAME="attrs" VALUE="userPassword"> Mot de passe
+</TD></TR>
+</TABLE>
+<P><HR>
+<DIV ALIGN="center">
+<STRONG><INPUT TYPE="submit" VALUE=" BIND for MODIFY "></STRONG>
+<INPUT TYPE="reset" VALUE="RESET values">
+</DIV></FORM>
+
+:MISSING_PASSWORD	Mot de passe absent
+:UNKNOWN_ARGUMENT	Paramétre inconnu
+:NULL_PASSWORD      Veuillez indiquer un mot de passe!
+:PASSWORD_VERIFY    Impossible de vérifier le mot de passe!
+:PASSWORD_MISMATCH  Les mots de passe ne concordent pas! Vous avez donné deux mots de passe différents ...
+:DELETED	effacée
+:ADDED		ajoutée
+:REPLACED	remplacée
+:CHANGE		modifiée
+:CHANGES	modifications
+
+:MISSING_DN 	    DN Absent
+:UNKNOWN_QUERY      Requête inconnue
+:MODIFY_RESULTS     Résultats de la modification
+
+# Modification
+:MODIFY			MODIFY
+# %1 = RDN, %2 = UFN
+:EXPLAIN_MODIFY <DIV ALIGN="center">Modifier
+<H2 ALIGN=center>%1</H2>
+</DIV>
+
+:HELP_MODIFY <DIV ALIGN="center">Cliquer sur le nom d'attribut pour obtenir de l'aide sur son format.</DIV>
+
+# Help for attributes
+# %1 = friendly attribute name, %2 = attribute name, 
+# %3 empty or  ATTR_REQUIRED
+:ATTR_HELP <A HREF="HA#%2">%1</A>%3
+:ATTR_REQUIRED <BR>doit être indiqué!
+
+# Changing password
+:CHANGE_PASSWORD <DIV ALIGN="center"><STRONG>Modifiez votre mot de passe pour l'annuaire</STRONG><P>
+Entrez deux fois le mot de passe.
+</DIV>
+<TABLE ALIGN="center">
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+      <STRONG>Nouveau mot de passe:</STRONG></TD>
+    <TD><INPUT TYPE="password" NAME="userPassword"></TD></TR>
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+      <STRONG>À nouveau :</STRONG></TD>
+    <TD><INPUT TYPE="password" NAME="verify_userPassword"></TD></TR>
+</TABLE>
+
+:MODIFY_ACTION      <P><HR>
+<DIV ALIGN="center">
+<STRONG><INPUT TYPE="submit" VALUE="MODIFY"></STRONG>
+<INPUT TYPE="reset" VALUE="RESET Values">
+</DIV>
+
+# %1 = RDN, %2 = UFN of the changed entry
+:MODIFY_RESULTS_FOR	<DIV ALIGN="center">Résultats de la modification pour 
+<H2  ALIGN=center>%1</H2></DIV>
+<TABLE ALIGN="center">
+<TR><TD COLSPAN=2 BGCOLOR="#e0e0e0"><STRONG><BIG>Modifications</BIG></STRONG></TD></TR>
+
+# Modification successful: %1 = attribute, %2 = new value, %3 = action
+:MODIFY_REPORT  <TR>
+   <TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=top WIDTH="30%">
+      <STRONG>%1 <EM>%3</EM></STRONG></TD>
+   <TD>%2</TD></TR>
+
+# %1 = no of successful changes, %2 = CHANGE/CHANGES
+:MODIFY_SUMMARY <TR><TD COLSPAN=2 BGCOLOR="#e0e0e0"><STRONG><BIG>%d %s
+modifiée avec succés!</BIG></STRONG></TD></TR>
+
+# Actions after modification
+# %1 = URL to read, %2 = URL modify again, %3 = bind-dn, %4 = passwd
+:AFTER_MODIFY   <TR><TD COLSPAN=2>
+  <FORM ACTION="%2" METHOD=POST><STRONG>
+  <A HREF="%1">Relire l'entrée modifiée</A>
+  <INPUT TYPE=hidden NAME="dn" VALUE="%3">
+  <INPUT TYPE=hidden NAME="userPassword" VALUE="%4">
+  <INPUT TYPE=submit VALUE="Modifier à mnouveau l'entrée"></STRONG></FORM>
+  </TD></TR>
+</TABLE>
+
+# Error during modification: %1 = error code, %2 = error string
+:MODIFY_ERROR   <TR>
+  <TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=top WIDTH="30%">
+    <STRONG><FONT COLOR="red">Erreur durant l'opération:</FONT></TD>
+  <TD>Error code <EM> %1: %2.</EM></TD></TR>
+</TABLE>
+
+:NO_CHANGES <TR><TD COLSPAN=2><STRONG>PAs de modifications !</STRONG></TD></TR>
+
+
+##################### Add - new entry
+# Bind for add form
+# %1 = base RDN, %2 = base UFN, %3 = ACTION URL, 
+# %4 = Bind DN as SELECT OPTIONS or INPUT field
+:BIND_ADD_FORM       <DIV ALIGN="center">Pour ajouter une nouvelle entrée sous
+<H2 ALIGN="center">%1</H2>
+<!-- %2 -->
+Vous devez vous authentifier comme un administrateur de l'annuaire.
+</DIV>
+<FORM METHOD=POST ACTION="%3">
+<TABLE ALIGN="center">
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+        <STRONG>Administrateur :</STRONG></TD>
+    <TD>%4</TD>
+</TR>
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+        <STRONG>Mot de passe :</STRONG></TD>
+    <TD><INPUT TYPE="password" NAME="userPassword"></TD></TR>
+</TABLE>
+<P><HR>
+<DIV ALIGN="center">
+<STRONG><INPUT TYPE="submit" VALUE="START Authentication"></STRONG>
+<INPUT TYPE="reset" VALUE="RESET values">
+</DIV></FORM>
+
+:ADD    ADD
+# %1 = Base RDN, %2 = Base UFN
+:EXPLAIN_ADD <DIV ALIGN="center">Ajouter une nouvelle entrée sous
+<!-- %1 -->
+<H2 ALIGN=center>%2</H2></DIV>
+
+:ADD_ACTION      <P><HR>
+<DIV ALIGN="center">
+<STRONG><INPUT TYPE="submit" VALUE=" ADD "></STRONG>
+<INPUT TYPE="reset" VALUE="DELETE values">
+</DIV>
+
+:ADD_RESULTS        Add a new entry
+
+# %1 = RDN, %2 = UFN of the added entries
+:ADD_RESULTS_FOR    <DIV ALIGN="center">Ajoutée
+<H2 ALIGN=center>%1</H2></DIV>
+
+# Error during add
+# %1 = RDN, %2 = UFN, %3 = error code, %4 = error description, 
+# %5 = info
+:ADD_ERROR <!-- %1 %2 -->
+<P>Erreur <EM>%3: %4</EM> - %5<P>
+<STRONG>Aucune entrée n'a été ajoutée!</STRONG>
+
+:ADD_OC_NOT_ADDABLE     Entries of this objectclass are not addable!
+:ADD_NO_RDN_DEFINED     No RDN attribute defined in template!
+:ADD_NO_RDN             No RDN attribute defined!
+:ADD_MISSING_REQ_VALUE  A value for the attribute "%s" is required!
+
+## %1 = URL to read, %2 = URL to modify, %3 = bind-dn, %4 = passwd
+# Add ok
+# %1 = RDN, %2 = UFN, %3 = URL z. Lesen
+:ADD_OK  <!-- %1 -->
+         <STRONG>%2 ajouté avec succés!</STRONG><P>
+         <STRONG><A HREF="%3">Consulter la nouvelle entrée</A></STRONG>
+
+##################### Delete entry
+# Bind for delete form
+# %1 = RDN, %2 = RDN with attr, %3 = base UFN, %4 = ACTION URL, 
+# %5 = Bind DN as SELECT OPTIONS or INPUT field
+:BIND_DELETE_FORM       <DIV ALIGN="center">To delete the entry
+<H2 ALIGN="center">%1</H2>
+you have to authenticate to the Directory.
+</DIV>
+<FORM METHOD=POST ACTION="%4">
+<TABLE ALIGN="center">
+<TR><TD ALIGN=right BGCOLOR="#FFFFCC" VALIGN=middle>
+        <STRONG>Authenticate as user:</STRONG></TD>
+    <TD>%5</TD>
+</TR>
+<TR><TD ALIGN=right BGCOLOR="#FFFFCC" VALIGN=middle>
+        <STRONG>Password:</STRONG></TD>
+    <TD><INPUT TYPE="password" NAME="userPassword"></TD></TR>
+</TABLE>
+<P><HR>
+<DIV ALIGN="center">
+<STRONG><INPUT TYPE="submit" VALUE="Yes, DELETE this entry"></STRONG>
+<INPUT TYPE="reset" VALUE="RESET values">
+</DIV></FORM>
+
+:DELETE_RESULTS     Delete an entry
+
+# %1 = RDN, %2 = UFN of the deleted entry
+:DELETE_RESULTS_FOR <DIV ALIGN="center">Removal of
+<H2 ALIGN=center>%1</H2></DIV>
+
+# Error 
+# %1 = RDN, %2 = UFN, %3 = error code, %4 = description, %5 = info
+:DELETE_ERROR <P>Error <EM>%3: %4</EM> - %5<P>
+<STRONG>The entry was not deleted!</STRONG>
+
+# Delete ok
+# %1 = RDN, %2 = UFN
+:DELETE_OK  <DL><DT>The entry
+<DD><STRONG>%2</STRONG>
+<DT>was <STRONG>deleted</STRONG> successfully!
+</DL>
+
+
+##################### Rename entry (modify_rdn)
+# Bind for MODRDN form
+# %1 = old RDN, %2 = old RDN with attr, %3 = old UFN, %4 = ACTION URL, 
+# %5 = Bind DN as SELECT OPTIONS or INPUT field
+:BIND_MODRDN_FORM       <DIV ALIGN="center">To rename the entry
+<H2 ALIGN="center">%1</H2>
+you have to authenticate to the Directory.
+</DIV>
+<FORM METHOD=POST ACTION="%4">
+<TABLE ALIGN="center">
+<TR><TD ALIGN=right BGCOLOR="#FFFFCC" VALIGN=middle>
+        <STRONG>Authenticate as user:</STRONG></TD>
+    <TD>%5</TD>
+</TR>
+<TR><TD ALIGN=right BGCOLOR="#FFFFCC" VALIGN=middle>
+        <STRONG>Password:</STRONG></TD>
+    <TD><INPUT TYPE="password" NAME="userPassword"></TD></TR>
+<TR><TD><BR><BR></TD><TD></TD></TR>
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+        <STRONG>Old name:</STRONG></TD>
+    <TD>%2
+    </TD></TR>
+<TR><TD ALIGN=right BGCOLOR="#e0e0e0" VALIGN=middle>
+        <STRONG>New name:</STRONG></TD>
+        <TD><INPUT NAME="newrdn"><BR>
+        </TD></TR>
+<TR><TD><BR><TD>
+        <INPUT TYPE="checkbox" NAME="deleteoldrdn" VALUE="1" CHECKED>
+        Remove old name form the entry?
+    </TD></TR>
+</TABLE>
+<P><HR>
+<DIV ALIGN="center">
+<STRONG><INPUT TYPE="submit" VALUE="Yes, RENAME this entry"></STRONG>
+<INPUT TYPE="reset" VALUE="RESET values">
+</DIV></FORM>
+
+:MODRDN_NO_NEWRDN   No new name given!
+:MODRDN_RESULTS     Rename an entry
+
+# %1 = old RDN, %2 = old UFN, %3 = new RDN, %4 = new UFN
+:MODRDN_RESULTS_FOR <DIV ALIGN="center">Renaming
+<H2 ALIGN=center>%1</H2> to
+<H2 ALIGN=center>%3</H2></DIV>
+
+# modrdn error
+# %1 = old RDN, %2 = old UFN, %3 = new RDN, %4 = new UFN,
+# %5 = error code, %6 = description, %6 = info
+:MODRDN_ERROR <P>Error <EM>%5: %6</EM> - %7<P>
+<STRONG>The entry was not renamed!</STRONG>
+
+# modrdn ok
+# %1 = old RDN, %2 = old UFN, %3 = new RDN, %4 = new UFN
+# %5 = URL for the new entry
+:MODRDN_OK  <DL>
+<DT>The entry <DD>%2
+<DT>was renamed to
+<DD><STRONG><A HREF="%5">%4</A></STRONG>
+</DL>
+
+##################### Errors and error descriptions
+# %d = # of entries found
+:SIZELIMIT_0 <P>
+La requête que vous avez fournie n'est pas assez spécifique, la limite
+# en temps de recherche a été  atteinte et seul les premieres %d
+# rréponses ont été retorunée. Si la réponse que vous recherchez
+# n'apparaît pas ici, essayez une requête plus spécifique. Indiquez
+# par exemple à la fois le prénom et le nom.
+:SIZELIMIT_1 <P>
+Seulement %d réponses ont put-être retournéesmcar la limite de nombre
+ déntrée à été atteinte. Il n'est pas possible de contourner cette
+ limite, mais si vous savez ce que vous cherchez, essayez de choisir
+ l'option de <STRONG>recherche</STRONG> ci-dessus en spécififant le
+nom de l'entrée que vous recherchez.
+:TIMELIMIT <P>
+Un timeout est appru lors de la recherche est aucune entrée n'a été
+trouvée. Essayez plus tard.
+
+# HTTP responses for explanation in error pages
+:DOCUMENT_FOLLOWS   Ok
+:REDIRECT           Trouvé
+:NOT_MODIFIED       Non Modifié
+:BAD_REQUEST		Mauvaise réponse
+:AUTH_REQUIRED      Autorisation requise
+:FORBIDDEN          Interdir
+:NOT_FOUND          Non Trouvé
+:SERVER_ERROR       Erreur sur le serveur
+:NOT_IMPLEMENTED    Non Implémentée
+:UNKNOWN_ERROR      Erreur inconnue
+:ERROR              Erreur
+
+# Error explanation:
+# %1 = HTTP-error, %2 = LDAP code, %3 = LDAP error string
+# %4 = ERR_MATCHED %5 = more information
+:ERROR_OCCURRED		<H2>La requête à échouée : %1</H2>
+Une erreur est survenue lors de l'operation sur l'annuaire.<P>
+Le code d'erreur est <EM>%2</EM>:
+<EM>%3.</EM><BR>
+%4
+%5
+
+
+# Matched for LDAP_NO_SUCH_OBJECT: %1 = matched URL, %2 = matched DN
+:ERR_MATCHED    <P>Trouvé: <A HREF="%1">%2</A><P>
+
+:NOT_SUPPORTED   <STRONG>Cette fonction n'est pas supportée par le serveur.</STRONG>
+:TEMPLATE_MISSING   Template not found!
+:NO_BIND_DN         No DN for bind!
+
+# ACCESS:
+:ACCESS_NOTHING    <STRONG>Votre domaine internet n'a pas les
+autorisations nécessaire pour effectuer cette requête!</STRONG>
+:ACCESS_READONLY   <STRONG>Vous n'avez accés quén lecture, vous ne
+pouvez pas effectuer de modifications!</STRONG>
+:ACCESS_COMMON     <STRONG>Cette action vous est interdite!</STRONG>
+
+#
+# The LDAP errors for our own ldap_err2string routine
+#
+:LDAP_SUCCESS		Succés
+:LDAP_OPERATIONS_ERROR		Erreur d'opération
+:LDAP_PROTOCOL_ERROR		Erreur de protocole
+:LDAP_TIMELIMIT_EXCEEDED		Limite de temps atteinte
+:LDAP_SIZELIMIT_EXCEEDED		Limite de taille atteinte
+:LDAP_COMPARE_FALSE		Comparaison fausse
+:LDAP_COMPARE_TRUE		Comparaison vraie
+:LDAP_STRONG_AUTH_NOT_SUPPORTED		L'authentification renforcée n'est
+ pas supportée
+:LDAP_STRONG_AUTH_REQUIRED		authentification renforcée requise
+:LDAP_PARTIAL_RESULTS       Résultats partiels
+:LDAP_NO_SUCH_ATTRIBUTE		Pas d'attribut
+:LDAP_UNDEFINED_TYPE		Type d'attribut indéfini
+:LDAP_INAPPROPRIATE_MATCHING		requête non appropriée
+:LDAP_CONSTRAINT_VIOLATION		Violation de contrainte
+:LDAP_TYPE_OR_VALUE_EXISTS		Le type ou la valeur existe
+:LDAP_INVALID_SYNTAX		Syntaxe invalide
+:LDAP_NO_SUCH_OBJECT		Pas d'objet
+:LDAP_ALIAS_PROBLEM		Problème d'alias
+:LDAP_INVALID_DN_SYNTAX		Syntaxe invalide pour le DN
+:LDAP_IS_LEAF		Lóbjet est une feuille
+:LDAP_ALIAS_DEREF_PROBLEM		Problème lors de la
+déréférence de l'alias
+:LDAP_INAPPROPRIATE_AUTH		Authentification non appropriée
+:LDAP_INVALID_CREDENTIALS		Droits invalides
+:LDAP_INSUFFICIENT_ACCESS		Accés insuffisant
+:LDAP_BUSY		Le DSA est trop chargé
+:LDAP_UNAVAILABLE		DSA is indisponible
+:LDAP_UNWILLING_TO_PERFORM		DSA ne veut pas effectuer
+cette opération
+:LDAP_LOOP_DETECT		Boucle détect;ee
+:LDAP_NAMING_VIOLATION		Violation de nom
+:LDAP_OBJECT_CLASS_VIOLATION		Violation de la classe d'objet
+:LDAP_NOT_ALLOWED_ON_NONLEAF		Opération sulement permise
+siur les feuilles
+:LDAP_NOT_ALLOWED_ON_RDN		Opération interdite sur les RDNs
+:LDAP_ALREADY_EXISTS		Déjà existant
+:LDAP_NO_OBJECT_CLASS_MODS		Impossible de modifier la
+clase d'objet
+:LDAP_RESULTS_TOO_LARGE		Trop de résultats
+:LDAP_OTHER		Erreur inconnue
+:LDAP_SERVER_DOWN		Impossible de contacter le serveur LDAP
+:LDAP_LOCAL_ERROR		Erreur locale
+:LDAP_ENCODING_ERROR		Erreur d'encodage
+:LDAP_DECODING_ERROR		Erreur de décodage
+:LDAP_TIMEOUT		Time out
+:LDAP_AUTH_UNKNOWN		Méthode d'authentification inconnue
+:LDAP_FILTER_ERROR		Mauvais filtre de recherhce
+:LDAP_USER_CANCELLED		OPération avortée par l'utilisateur
+:LDAP_PARAM_ERROR		Mauvais paramétre pour une routine LDAP
+:LDAP_NO_MEMORY		Plus de mémoire
+
+
+# Web500gw/LDAP monitor
+# %1 = version, %2 = compile time, %3 = LDAP version, %4 = copyright,
+# %5 = ADMIN, %6 = basedn-URL, %7 = basedn-UFN, %8 = LDAP server,
+# %9d = LDAP port
+# %10 = start time, %11 = current time, %12 = total connections,
+# %13 = active connections
+
+:MONITOR_TITLE  Monitor
+:MONITOR    <H1>%1</H1>
+<EM>%4</EM><P>
+<STRONG>Compiled at %2 - using %3</STRONG><HR>
+<TABLE>
+<TR><TD>Admin<TD%5
+<TR><TD>"HOME"<TD><A HREF="%6">%7</A>
+<TR><TD>LDAP server + port<TD>ldap://%8:%9/
+<TR><TD>Starttime<TD>%10
+<TR><TD>Current time<TD>%11
+<TR><TD>Total requests<TD>%12
+<TR><TD>Current requests<TD>%13
+</TABLE>
+<HR>
+
