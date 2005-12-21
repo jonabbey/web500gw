@@ -66,8 +66,9 @@ do_search(
     }
     print_filter = r->r_filter;
 
-    /* we're setting search_filter here to a human-friendly search
-       operand that came from our
+    /* XARL we're setting search_filter here to a human-friendly
+       search operand that came from our request's r_filter
+       argument. */
 
 #if defined(OWN_STR_TRANSLATION)
     search_filter = strdup(web500gw_isotot61(r->r_filter));
@@ -799,8 +800,17 @@ process_search_form (
 	     using */
             query = hex_qdecode(lp + 6);
         } else if (strncasecmp(lp, "base=", 5) == 0) {
-	  /* XARL o=ARL:UT, c=US&endargs
-            r->r_dn = hex_qdecode(lp + 5);
+	  /* XARL
+
+	     In the HTML form we are using to dispatch into the
+	     web500gw, we have an option that sets 'args' to
+
+	     'o=ARL:UT, c=US&endargs' 
+
+	     The &endargs is necessary to end the internal parsing of
+	     the args option.
+	  */
+             r->r_dn = hex_qdecode(lp + 5);
         } else if (strncasecmp(lp, "ldapserver=", 11) == 0) {
             server = hex_qdecode(lp + 11);
         } else if (strncasecmp(lp, "ldapport=", 9) == 0) {
@@ -810,6 +820,15 @@ process_search_form (
             ap = hex_qdecode(lp + 5);
             np = cp;
             cp = lp = ap;
+
+	    /* XARL
+
+	       By setting cp here, we let the check at the top of this
+	       loop find the & character prefixing &endargs, which
+	       will be replaced with a null ascii character to
+	       terminate the args string.
+
+	    */
             continue;
         } else if (strncasecmp(lp, "endargs", 7) == 0) {
             cp = np;        /* go further */

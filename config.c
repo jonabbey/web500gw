@@ -684,12 +684,10 @@ attrs helpfile: %s\n\
  sizelimit: %d\n\
   language: %s\n\
   start_dn: %s\n\
-   bind_dn: %s\n\
-  template: %s\n\
-filterfile: %s\n",
+   bind_dn: %s\n",
         a->a_desc, a->a_domainpattern, a->a_rights,
         access_right2string(a->a_rights), a->a_sizelimit, a->a_language,
-        a->a_start_dn, a->a_bind_dn, a->a_tmplfile, a->a_filterfile);
+        a->a_start_dn, a->a_bind_dn);
     }
     fprintf(stderr, "\n");
     for (b = browser_opts; b && b->b_pattern; b = b->b_next) {
@@ -838,24 +836,6 @@ initialize(
         if (!(a->a_bind_pw && *a->a_bind_pw)) 
             a->a_bind_pw = web500pw;
 
-        /* templatefile */
-        hf = abs_file_name(templatefile, etcdir, a->a_suffix);
-        if (access(hf, R_OK) != 0) {
-            fprintf(stderr, "Unable to access templatefile %s:\n\t", hf);
-            perror("");
-            exit(1);
-        }
-        a->a_tmplfile = strdup(hf);
-        /* filterfile */
-        hf = abs_file_name(filterfile, etcdir, a->a_suffix);
-        if (access(hf, R_OK) != 0) {
-            fprintf(stderr, "Unable to access filterfile %s:\n\t", hf);
-            perror("");
-            exit(1);
-        }
-        a->a_filterfile = strdup(hf);
-
-
 #ifdef WEB500GW_DEBUG
         Web500gw_debug(WEB500GW_DEBUG_CONFIG, "\
   language: %s\n\
@@ -863,27 +843,9 @@ initialize(
             a->a_language, a->a_sizelimit, 0, 0);
         Web500gw_debug(WEB500GW_DEBUG_CONFIG, "\
   start_dn: %s\n\
-   bind_dn: %s\n\
-  template: %s\n\
-filterfile: %s\n", 
-            a->a_start_dn, a->a_bind_dn, a->a_tmplfile, a->a_filterfile);
+   bind_dn: %s\n", 
+            a->a_start_dn, a->a_bind_dn);
 #endif
-        /* template file for entries */
-        if ((err = ldap_init_templates(a->a_tmplfile, &a->a_tmpllist)) != 0) {
-            fprintf(stderr, "Error reading template file (%s):\n\t%s\n",
-                a->a_tmplfile,
-                err == LDAP_TMPL_ERR_VERSION ? "Wrong version number" :
-                err == LDAP_TMPL_ERR_MEM ? "Memory allocation problem" :
-                err == LDAP_TMPL_ERR_SYNTAX ? "Syntax error" :
-                err == LDAP_TMPL_ERR_FILE ? "Cannot open" :
-                "Unknown error");
-            exit(1);
-        }
-        /* search filter  file */
-        if ((a->a_filtd = ldap_init_getfilter(a->a_filterfile)) == NULL) {
-            fprintf(stderr, "Cannot open filter file (%s)\n", a->a_filterfile);
-            exit(1);
-        }
     }
 
     /* Browsers */
