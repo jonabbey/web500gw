@@ -65,11 +65,16 @@ do_search(
         return NOTOK;
     }
     print_filter = r->r_filter;
+
+    /* we're setting search_filter here to a human-friendly search
+       operand that came from our
+
 #if defined(OWN_STR_TRANSLATION)
     search_filter = strdup(web500gw_isotot61(r->r_filter));
 #else
     search_filter = r->r_filter;
 #endif
+
     if (*search_filter == '\0' || *(search_filter+1) != '=') {
         scope = LDAP_SCOPE_ONELEVEL;
     } else {
@@ -171,8 +176,24 @@ do_search(
         friendlyDesc = NULL;
 
         /* try all filters til we have success */
+
+	/* what we're doing here is looking for filters in our
+	   ldapfilter.conf file that match the filtertype ("web500gw
+	   onelevel" or "web500gw subtree") and the value (i.e.,
+	   ldap_getfirstfilter applies a regular expression in the
+	   ldapfilter.conf file to determine filters that match the
+	   style of input we've been given in 'search_filter'.
+	   'search_filter' here is not truly an LDAP filter
+	   expression, but rather is an human-generated input string
+	   which is to be used as a search operand.
+
+	   r->r_access->a_filtd is a LDAPFiltDesc pointer, which
+	   actually isn't valid without having access to the old
+	   OpenLDAP/umich filter APIs */
+
         for (fi = ldap_getfirstfilter(r->r_access->a_filtd, filtertype, search_filter);
-	     fi != NULL; fi = ldap_getnextfilter(r->r_access->a_filtd))
+	     fi != NULL;
+	     fi = ldap_getnextfilter(r->r_access->a_filtd))
 	  {
 #ifdef WEB500GW_DEBUG
             Web500gw_debug(WEB500GW_DEBUG_FILTER, "  search %s: %s -- %s\n",
@@ -192,7 +213,7 @@ do_search(
             if ((count = ldap_count_entries(r->r_ld, res)) > 0)
 	      {
                 /* found something */
-                friendlyDesc = friendly_label(resp, fi->lfi_desc); /* *leak* if ldap_free_friendlymap() not called on resp subfield */
+                friendlyDesc = friendly_label(resp, fi->lfi_desc);
 #ifdef WEB500GW_DEBUG
                 Web500gw_debug(WEB500GW_DEBUG_FILTER, 
 			       " searched ... and found %d results!\n", count, 0, 0, 0);
@@ -309,7 +330,7 @@ do_search(
 #endif
                 resp->resp_status = REDIRECT;
                 if (resp->resp_httpheader == 0 && r->r_httpversion == 1) {
-                    resp->resp_location = malloc(strlen(url_dn) + 11); /* *leak* if not freed.  And, why 11 extra bytes? */
+                    resp->resp_location = malloc(strlen(url_dn) + 11);
                     strcpy(resp->resp_location, url_dn);
 
                     http_header(r, resp);
@@ -410,12 +431,12 @@ do_search(
         tmpl = ldap_oc2template(oc, r->r_access->a_tmpllist);
         doc = pick_oc(oc);
         if (tmpl && tmpl->dt_pluralname) {
-            foc = strdup(friendly_label(resp, tmpl->dt_pluralname)); /* *leak* */
+            foc = strdup(friendly_label(resp, tmpl->dt_pluralname));
         } else {
-            foc = strdup(friendly_label(resp, doc)); /* *leak* */
+            foc = strdup(friendly_label(resp, doc));
             if (strcmp(foc, doc) == 0) {
             /* "no friendly objectclass" found -> last in the list (a hack) */
-                foc = (char *)malloc(strlen(doc)+9); /* *leak* */
+                foc = (char *)malloc(strlen(doc)+9);
                 sprintf(foc, "&#032;%s", doc);
             }
         }
@@ -491,47 +512,47 @@ do_search(
             if (isnonleaf(r->r_ld, oc, result_dn)) {
                 if (r->r_flags & FLAG_NOHREFDN)
                     msg_snprintf(href, sizeof(href), MSG_DN_ALIAS_TO_NONLEAF, 
-                        "sss", result_ufn, alias_ufn, html_encode(result_dn)); /* *leak* from html_encode */
+                        "sss", result_ufn, alias_ufn, html_encode(result_dn));
                 else
                     msg_snprintf(href, sizeof(href), MSG_HREF_ALIAS_TO_NONLEAF,
                         "ssssss",
                         dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE,
                         0, NULL, server), result_ufn,
-                        alias_ufn, html_encode(result_dn), /* *leak* from html_encode */
-                        string_encode(result_ufn),string_encode(result_dn)); /* *leak* from string_encode */
+                        alias_ufn, html_encode(result_dn),
+                        string_encode(result_ufn),string_encode(result_dn));
             } else {
                 if (r->r_flags & FLAG_NOHREFDN)
                     msg_snprintf(href, sizeof(href), MSG_DN_ALIAS_TO_LEAF, 
                         "sss",
-                        result_ufn, alias_ufn, html_encode(result_dn));	/* *leak* from html_encode */
+                        result_ufn, alias_ufn, html_encode(result_dn));
                 else
                     msg_snprintf(href, sizeof(href), MSG_HREF_ALIAS_TO_LEAF,
                         "ssssss",
                         dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE, 0, NULL,
                         server), result_ufn,
-                        alias_ufn, html_encode(result_dn), /* *leak* from html_encode */
-                        string_encode(result_ufn),string_encode(result_dn));/* *leak* from string_encode */
+                        alias_ufn, html_encode(result_dn),
+                        string_encode(result_ufn),string_encode(result_dn));
             }
         } else if (isnonleaf(r->r_ld, oc, result_dn)) {
             if (r->r_flags & FLAG_NOHREFDN)
                 msg_snprintf(href, sizeof(href), MSG_DN_NON_LEAF, "ss",
-                    result_ufn, html_encode(result_dn)); /* *leak* from html_encode */
+                    result_ufn, html_encode(result_dn));
             else
                 msg_snprintf(href, sizeof(href), MSG_HREF_NON_LEAF, "sssss",
                     dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE, 0,
                     NULL, server), result_ufn,
-                    html_encode(result_dn), string_encode(result_ufn), /* *leak* from html_encode */
-                    string_encode(result_dn));/* *leak* from string_encode */
+                    html_encode(result_dn), string_encode(result_ufn),
+                    string_encode(result_dn));
         } else {
             if (r->r_flags & FLAG_NOHREFDN)
                 msg_snprintf(href, sizeof(href), MSG_DN_LEAF, "ss",
-                    result_ufn, html_encode(result_dn)); /* *leak* from html_encode */
+                    result_ufn, html_encode(result_dn));
             else
                 msg_snprintf(href, sizeof(href), MSG_HREF_LEAF, "sssss",
                     dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE, 0,
                     NULL, server), result_ufn, 
-                    html_encode(result_dn), string_encode(result_ufn), /* *leak* from html_encode */
-                    string_encode(result_dn));/* *leak* from string_encode */
+                    html_encode(result_dn), string_encode(result_ufn),
+                    string_encode(result_dn));
         }
         /* build the sortstring:  foc[sn]sortstring */
         if (sn) {
@@ -552,12 +573,12 @@ do_search(
             dnlist[counter] = (struct dncompare *) malloc(sizeof(struct dncompare));
         }
         dnlist[counter]->sortstring = temp;
-        dnlist[counter]->href = strdup(href); /* *leak* */
-        dnlist[counter]->friendly_oc = foc; /* *leak* */
+        dnlist[counter]->href = strdup(href);
+        dnlist[counter]->friendly_oc = foc;
         dnlist[counter]->oc = doc;
         dnlist[counter]->tmpl = tmpl;
         dnlist[counter]->entry = e;
-        dnlist[counter]->dn = strdup(result_dn); /* *leak* */
+        dnlist[counter]->dn = strdup(result_dn);
         counter++;
         ldap_value_free(oc);
         free(result_dn);
@@ -691,20 +712,94 @@ process_search_form (
         if ((cp = strchr(cp, '&')))
             *cp++ = '\0';
         if (strncasecmp(lp, "filtertemplate=", 15) == 0) {
-            /* a search filter template */
+            /* a search filter template 
+
+	       XARL
+
+               This field is set to a constant in the HTML file we use
+               at ARL.. filtertemplate is set to:
+
+	       (&(objectclass=%v1)(%v2))
+
+	       Which is just a way of encoding both the object class
+	       to search on and the specific search terms specified by a subsequent
+	       substitution of a filter term.
+
+	       XXX I'm not sure why the hex_qdecode function doesn't
+	       attempt to do hex decoding of 'v1' and 'v2', since they
+	       are prefixed by %.. it would appear that %v1 would
+	       translate into a ctrl-A (hex 0x01), and %v2 would be
+	       translated into ctrl-B (hex 0x02).. XXX
+
+	       If this is the case, I'm not sure how the
+	       filtertemplate could be processed properly downstream.
+
+	       I suppose this means that special characters (including
+	       the % in the above filter string) must be hex encoded
+	       by the web browser or web server so that the %v1 and
+	       %v2 are not corrupted.
+
+	    */
             filtertemplate = hex_qdecode(lp + 15);
         } else if (oc == NULL && strncasecmp(lp, "objectclass=", 12) == 0) {
-            /* objectClass */
+            /* objectClass
+
+	       XARL
+
+	       This field is mixed into the filtertemplate pattern in order
+	       to constrain the search performed by objectClass.
+	    */
             oc = hex_qdecode(lp + 12);
         } else if (strncasecmp(lp, "searchattr=", 11) == 0) {
-            /* attribute to search for */
+            /* attribute to search for
+
+	       XARL
+
+	       As used at ARL, this field will contain one of the
+	       following:
+
+	         cn			(Name)
+	         givenName		(First Name)
+	         sn			(Surname)
+	         mail			(E-Mail)
+	         roomNumber		(Room)
+	         departmentNumber	(Department)
+	         title			(Title)
+
+		 searchattr is used by the no longer present
+		 ldap_build_filter() API call to create a search on
+		 the specified LDAP attribute.
+	    */
             searchattr = hex_qdecode(lp + 11);
         } else if (strncasecmp(lp, "match=", 6) == 0) {
-            /* search method */
+            /* search method.
+
+	       XARL
+
+	       This comes from the HTML form that drives us, and
+	       corresponded to a filter pattern such as one of the
+	       following:
+
+	       %a=*%v*
+	       ! (%a=*%v*)
+	       %a=%v*
+               %a~=%v
+               $a=$v
+
+	       which correspond to:
+
+	       contains:
+	       doesn't contain:
+	       begins with:
+	       sounds like:
+	       is: */
             match = hex_qdecode(lp + 6);
         } else if (query == NULL && strncasecmp(lp, "query=", 6) == 0) {
+	  /* XARL query method wasn't used by the HTML we've been
+	     using */
             query = hex_qdecode(lp + 6);
         } else if (strncasecmp(lp, "base=", 5) == 0) {
+	  /* XARL o=ARL:UT, c=US&endargs
             r->r_dn = hex_qdecode(lp + 5);
         } else if (strncasecmp(lp, "ldapserver=", 11) == 0) {
             server = hex_qdecode(lp + 11);
@@ -771,6 +866,7 @@ process_search_form (
       "process_search_form: query = %s, searchattr = %s, objectclass = %s\n",
       query ? query : "", searchattr ? searchattr : "", oc ? oc : "", 0);
 #endif
+
     len = strlen(match) + strlen(query) + strlen(searchattr);
     matchquery = calloc(1, len);
     ldap_build_filter(matchquery, len, match, NULL, NULL,
