@@ -26,11 +26,11 @@ do_search(
     char            *print_filter, *human_filter;
     int             scope, count = 0, rc, i = 0, j, in_home;
     struct timeval  timeout;
-    LDAPFiltInfo    *fi;
+    // XARL    LDAPFiltInfo    *fi;
     LDAPMessage     *e, *res;
     static char     *def_attrs[] = 
                 {"objectClass", "sn", "aliasedObjectName", "labeledURI", 0};
-    struct ldap_disptmpl    *tmpl;
+    // XARL    struct ldap_disptmpl    *tmpl;
     char    **oc;
     char    *result_dn, *doc, *foc, *url_dn;
     char    *base_dn, *base_ufn, *result_ufn, *alias_ufn, *sortstring, *cp, *bp;
@@ -115,33 +115,40 @@ do_search(
 
     if ((in_home = isinhome(base_dn)))
         /* ACCESS sizelimit if searching below HOME DN */
-        r->r_ld->ld_sizelimit = r->r_access->a_sizelimit;
+      ldap_set_option(r->r_ld, LDAP_OPT_SIZELIMIT, &(r->r_access->a_sizelimit));
     else
-        r->r_ld->ld_sizelimit = sizelimit;
-
+      ldap_set_option(r->r_ld, LDAP_OPT_SIZELIMIT, &sizelimit);
+    
     /* A simple filter (not starting with '(') with a comma in it 
      *  -> UFN assumed */
     if (ufnsearch && search_filter[0] != '(' && 
-        strchr(search_filter, ',') != NULL && strlen(search_filter) > 3) {
+        strchr(search_filter, ',') != NULL && strlen(search_filter) > 3)
+      {
         if (strlen(base_dn) > 0)
-            ldap_ufn_setprefix(r->r_ld, base_dn);
+	  {
+	    ldap_ufn_setprefix(r->r_ld, base_dn);
+	  }
+
         timeout.tv_sec = timelimit;
         timeout.tv_usec = 0;
         ldap_ufn_timeout((void *) &timeout);
-        r->r_ld->ld_deref = LDAP_DEREF_FINDING;
+	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_FINDING);
+	
 #ifdef WEB500GW_DEBUG
         Web500gw_debug(WEB500GW_DEBUG_TRACE, "ldap_ufn_search_s (%s)\n", 
-            search_filter, 0, 0, 0);
+		       search_filter, 0, 0, 0);
 #endif
         if ((rc = ldap_ufn_search_s(r->r_ld, search_filter, search_attrs, 0, &res))
-            != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
-            do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+            != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED)
+	  {
+	    do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
             return NOTOK;
-        }
+	  }
+
         count = ldap_count_entries(r->r_ld, res);
 #ifdef WEB500GW_DEBUG
         Web500gw_debug(WEB500GW_DEBUG_TRACE, "UFN ready: %d results!\n",
-            count, 0, 0, 0);
+		       count, 0, 0, 0);
 #endif
         /* Reset DN, because this UFN search was probably not below DN */
         base_dn = base_ufn = "";
@@ -149,12 +156,15 @@ do_search(
 
         friendlyDesc = MSG_UFN;
 
-    } else {
+      }
+    else
+      {
         /* let's do the search */
         filtertype = (scope == LDAP_SCOPE_ONELEVEL ? "web500gw onelevel" :
-            "web500gw subtree");
-        r->r_ld->ld_deref = (scope == LDAP_SCOPE_ONELEVEL ? LDAP_DEREF_FINDING :
-            LDAP_DEREF_ALWAYS);
+		      "web500gw subtree");
+
+	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, 
+			(void *) (scope == LDAP_SCOPE_ONELEVEL ? LDAP_DEREF_FINDING : LDAP_DEREF_ALWAYS));
         timeout.tv_sec = timelimit;
         timeout.tv_usec = 0;
     
@@ -162,37 +172,43 @@ do_search(
 
         /* try all filters til we have success */
         for (fi = ldap_getfirstfilter(r->r_access->a_filtd, filtertype, search_filter);
-            fi != NULL; fi = ldap_getnextfilter(r->r_access->a_filtd)) {
+	     fi != NULL; fi = ldap_getnextfilter(r->r_access->a_filtd))
+	  {
 #ifdef WEB500GW_DEBUG
             Web500gw_debug(WEB500GW_DEBUG_FILTER, "  search %s: %s -- %s\n",
-                scope == LDAP_SCOPE_ONELEVEL ? "onelevel" : "subtree",
-                fi->lfi_filter, fi->lfi_desc, 0);
+			   scope == LDAP_SCOPE_ONELEVEL ? "onelevel" : "subtree",
+			   fi->lfi_filter, fi->lfi_desc, 0);
 #endif
             if ((rc = ldap_search_st(r->r_ld, base_dn, scope, fi->lfi_filter,
-                search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS && 
+				     search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS && 
                 rc != LDAP_SIZELIMIT_EXCEEDED && rc != LDAP_INSUFFICIENT_ACCESS 
                 && rc != LDAP_TIMELIMIT_EXCEEDED && rc != LDAP_TIMEOUT
-                && rc != LDAP_PARTIAL_RESULTS) {
-                do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+                && rc != LDAP_PARTIAL_RESULTS)
+	      {
+		do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
                 return NOTOK;
-            }
-            if ((count = ldap_count_entries(r->r_ld, res)) > 0) {
+	      }
+
+            if ((count = ldap_count_entries(r->r_ld, res)) > 0)
+	      {
                 /* found something */
-                friendlyDesc = friendly_label(resp, fi->lfi_desc);
+                friendlyDesc = friendly_label(resp, fi->lfi_desc); /* *leak* if ldap_free_friendlymap() not called on resp subfield */
 #ifdef WEB500GW_DEBUG
                 Web500gw_debug(WEB500GW_DEBUG_FILTER, 
-                    " searched ... and found %d results!\n", count, 0, 0, 0);
+			       " searched ... and found %d results!\n", count, 0, 0, 0);
 #endif
                 break;
-            }
+	      }
+
 #ifdef WEB500GW_DEBUG
             Web500gw_debug(WEB500GW_DEBUG_FILTER, 
-                " searched ... and found no results!\n", 0, 0, 0, 0);
+			   " searched ... and found no results!\n", 0, 0, 0, 0);
 #endif
-        }
-        r->r_ld->ld_deref = LDAP_DEREF_ALWAYS;
-    }
+	  }
 
+	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_ALWAYS);
+      }
+    
     if (count < 1) {        /* nothing found :-( */
         if (r->r_flags & FLAG_SEARCHACT) {
             /* in a search action we silently ignore this */
@@ -293,7 +309,7 @@ do_search(
 #endif
                 resp->resp_status = REDIRECT;
                 if (resp->resp_httpheader == 0 && r->r_httpversion == 1) {
-                    resp->resp_location = malloc(strlen(url_dn) + 11);
+                    resp->resp_location = malloc(strlen(url_dn) + 11); /* *leak* if not freed.  And, why 11 extra bytes? */
                     strcpy(resp->resp_location, url_dn);
 
                     http_header(r, resp);
@@ -343,13 +359,17 @@ do_search(
         (!(r->r_flags & FLAG_ENTRYONLY))) {
         /* Not the default filter and not entryonly */
 
-        msg_fprintf(fp, MSG_SEARCH_RESULTS, "ssssisss",
-            (scope == LDAP_SCOPE_ONELEVEL ?  MSG_ONELEVEL : MSG_SUBTREE),
-            print_filter, human_filter, 
-            base_ufn && *base_ufn ? base_ufn : MSG_ROOT,
-            count, count == 1 ? MSG_ENTRY : MSG_ENTRIES, friendlyDesc,
-            rc == LDAP_PARTIAL_RESULTS ?
-            resp->resp_language->l_conf->c_errmsg[LDAP_PARTIAL_RESULTS] : "");
+        msg_fprintf(fp,
+		    MSG_SEARCH_RESULTS,
+		    "ssssisss",
+		    (scope == LDAP_SCOPE_ONELEVEL ?  MSG_ONELEVEL : MSG_SUBTREE),
+		    print_filter,
+		    human_filter, 
+		    base_ufn && *base_ufn ? base_ufn : MSG_ROOT,
+		    count,
+		    count == 1 ? MSG_ENTRY : MSG_ENTRIES,
+		    friendlyDesc,
+		    rc == LDAP_PARTIAL_RESULTS ? resp->resp_language->l_conf->c_errmsg[LDAP_PARTIAL_RESULTS] : "");
     }
     if (ldap_result2error(r->r_ld, res, 0) == LDAP_SIZELIMIT_EXCEEDED) {
         fprintf(fp, r->r_flags & FLAG_FILTER && r->r_access->a_sizelimit == 0 ? 
@@ -390,12 +410,12 @@ do_search(
         tmpl = ldap_oc2template(oc, r->r_access->a_tmpllist);
         doc = pick_oc(oc);
         if (tmpl && tmpl->dt_pluralname) {
-            foc = strdup(friendly_label(resp, tmpl->dt_pluralname));
+            foc = strdup(friendly_label(resp, tmpl->dt_pluralname)); /* *leak* */
         } else {
-            foc = strdup(friendly_label(resp, doc));
+            foc = strdup(friendly_label(resp, doc)); /* *leak* */
             if (strcmp(foc, doc) == 0) {
             /* "no friendly objectclass" found -> last in the list (a hack) */
-                foc = (char *)malloc(strlen(doc)+9);
+                foc = (char *)malloc(strlen(doc)+9); /* *leak* */
                 sprintf(foc, "&#032;%s", doc);
             }
         }
@@ -471,47 +491,47 @@ do_search(
             if (isnonleaf(r->r_ld, oc, result_dn)) {
                 if (r->r_flags & FLAG_NOHREFDN)
                     msg_snprintf(href, sizeof(href), MSG_DN_ALIAS_TO_NONLEAF, 
-                        "sss", result_ufn, alias_ufn, html_encode(result_dn));
+                        "sss", result_ufn, alias_ufn, html_encode(result_dn)); /* *leak* from html_encode */
                 else
                     msg_snprintf(href, sizeof(href), MSG_HREF_ALIAS_TO_NONLEAF,
                         "ssssss",
                         dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE,
                         0, NULL, server), result_ufn,
-                        alias_ufn, html_encode(result_dn),
-                        string_encode(result_ufn),string_encode(result_dn));
+                        alias_ufn, html_encode(result_dn), /* *leak* from html_encode */
+                        string_encode(result_ufn),string_encode(result_dn)); /* *leak* from string_encode */
             } else {
                 if (r->r_flags & FLAG_NOHREFDN)
                     msg_snprintf(href, sizeof(href), MSG_DN_ALIAS_TO_LEAF, 
                         "sss",
-                        result_ufn, alias_ufn, html_encode(result_dn));
+                        result_ufn, alias_ufn, html_encode(result_dn));	/* *leak* from html_encode */
                 else
                     msg_snprintf(href, sizeof(href), MSG_HREF_ALIAS_TO_LEAF,
                         "ssssss",
                         dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE, 0, NULL,
                         server), result_ufn,
-                        alias_ufn, html_encode(result_dn),
-                        string_encode(result_ufn),string_encode(result_dn));
+                        alias_ufn, html_encode(result_dn), /* *leak* from html_encode */
+                        string_encode(result_ufn),string_encode(result_dn));/* *leak* from string_encode */
             }
         } else if (isnonleaf(r->r_ld, oc, result_dn)) {
             if (r->r_flags & FLAG_NOHREFDN)
                 msg_snprintf(href, sizeof(href), MSG_DN_NON_LEAF, "ss",
-                    result_ufn, html_encode(result_dn));
+                    result_ufn, html_encode(result_dn)); /* *leak* from html_encode */
             else
                 msg_snprintf(href, sizeof(href), MSG_HREF_NON_LEAF, "sssss",
                     dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE, 0,
                     NULL, server), result_ufn,
-                    html_encode(result_dn), string_encode(result_ufn),
-                    string_encode(result_dn));
+                    html_encode(result_dn), string_encode(result_ufn), /* *leak* from html_encode */
+                    string_encode(result_dn));/* *leak* from string_encode */
         } else {
             if (r->r_flags & FLAG_NOHREFDN)
                 msg_snprintf(href, sizeof(href), MSG_DN_LEAF, "ss",
-                    result_ufn, html_encode(result_dn));
+                    result_ufn, html_encode(result_dn)); /* *leak* from html_encode */
             else
                 msg_snprintf(href, sizeof(href), MSG_HREF_LEAF, "sssss",
                     dn2url(r, result_dn, server ? 0 : FLAG_LANGUAGE, 0,
                     NULL, server), result_ufn, 
-                    html_encode(result_dn), string_encode(result_ufn),
-                    string_encode(result_dn));
+                    html_encode(result_dn), string_encode(result_ufn), /* *leak* from html_encode */
+                    string_encode(result_dn));/* *leak* from string_encode */
         }
         /* build the sortstring:  foc[sn]sortstring */
         if (sn) {
@@ -524,16 +544,20 @@ do_search(
             strcat(temp, *sn);
         }
         strcat(temp, sortstring);
+
+	/* we never free dncompare structs created here, as we'll
+	   re-use them over the course of the server's runtime. */
+
         if (!dnlist[counter]) {
             dnlist[counter] = (struct dncompare *) malloc(sizeof(struct dncompare));
         }
         dnlist[counter]->sortstring = temp;
-        dnlist[counter]->href = strdup(href);
-        dnlist[counter]->friendly_oc = foc;
+        dnlist[counter]->href = strdup(href); /* *leak* */
+        dnlist[counter]->friendly_oc = foc; /* *leak* */
         dnlist[counter]->oc = doc;
         dnlist[counter]->tmpl = tmpl;
         dnlist[counter]->entry = e;
-        dnlist[counter]->dn = strdup(result_dn);
+        dnlist[counter]->dn = strdup(result_dn); /* *leak* */
         counter++;
         ldap_value_free(oc);
         free(result_dn);

@@ -57,7 +57,7 @@ VERSION = 3.3
 STR_TRANSLATION = -DSTR_TRANSLATION
 # If you defined LDAP_DEBUG there and want to enable LDAP debugging
 # uncomment the following line:
-LDAP_DEBUG = -DLDAP_DEBUG
+#LDAP_DEBUG = -DLDAP_DEBUG
 
 #################
 ## If you have LDAP from an ISODE Consortium Release
@@ -103,7 +103,8 @@ ALLDEFINES= $(PLATFORMCFLAGS) -I. $(LDAPINCL) $(DEFINES) \
 CC	= gcc 
 #WARN = -Wall -Wno-implicit
 #CFLAGS	= -O4 $(WARN) $(ALLDEFINES) -fpcc-struct-return -fwritable-strings
-CFLAGS	= -g $(WARN) $(ALLDEFINES) -fpcc-struct-return -fwritable-strings
+#CFLAGS	= -g $(WARN) $(ALLDEFINES) -fpcc-struct-return -fwritable-strings
+CFLAGS = -g $(WARN) $(ALLDEFINES)
 
 # or cc:
 #CC	= cc

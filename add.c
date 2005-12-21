@@ -115,7 +115,7 @@ do_addform(
     if ((rc = ldap_search_st(r->r_ld, basedn, LDAP_SCOPE_BASE, default_filter,
         NULL, 0, &timeout, &res)) != LDAP_SUCCESS) {
         /* better error description here ??? */
-        do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+        do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
         return NOTOK;
     }
     /* check if nonleaf here ??? */

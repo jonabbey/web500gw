@@ -30,7 +30,7 @@ do_read(
     static char *root_ocl[] = { "root", 0 };    /* pseudo root ocl */
     LDAPMessage *res, *e = (LDAPMessage *)0;
     struct timeval    timeout;
-    struct ldap_disptmpl    *tmpl, *tmp;
+    // XARL    struct ldap_disptmpl    *tmpl, *tmp;
    
     if ((a = strchr(r->r_dn, '?')) != NULL)
         *a = '\0';
@@ -88,12 +88,17 @@ do_read(
             }
         }
         if (rc != LDAP_SUCCESS) {
-            do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
-            return NOTOK;
+	  //XXARL            do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+
+	  do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
+
+	  return NOTOK;
         }
         if ((e = ldap_first_entry(r->r_ld, res)) == NULL) {
             fprintf(stderr, "e = ldap_first_entry(r->r_ld, res)) == NULL\n");
-            do_error(r, resp, r->r_ld->ld_errno, 0, r->r_ld->ld_error, NULL);
+	    //XXARL            do_error(r, resp, r->r_ld->ld_errno, 0, r->r_ld->ld_error, NULL);
+
+	    do_ldap_error(r, resp, get_ldap_result_code(r->r_ld), 0, get_ldap_error_str(r->r_ld), NULL);
             return NOTOK;
         }
         ocl = NULL;
@@ -124,7 +129,7 @@ do_read(
             /* Check if_modified_since */
             if (*r->r_dn && lastmodified && !(r->r_flags & FLAG_NOCACHE) &&
                 (val = ldap_get_values(r->r_ld, e, "lastModifiedTime")) != NULL) {
-                resp->resp_last_modified = format_date(*val, DATE_FORMAT);
+                resp->resp_last_modified = format_date(*val, DATE_FORMAT); /* *leak* on returned value from format_date without later free */
                 if (r->r_if_modified_since && *(r->r_if_modified_since) &&
                     cmp_dates(*val, r->r_if_modified_since) != 1) {
                     resp->resp_status = NOT_MODIFIED;
@@ -170,31 +175,9 @@ do_read(
     /* if not root free(ufn); */
     fflush(fp);
     /* not the root */
-    if (r->r_template) {
-        tmpl = ldap_name2template(r->r_template, r->r_access->a_tmpllist);
-#ifdef WEB500GW_DEBUG
-        if (tmpl == NULL) { /* user template not found */
-            Web500gw_debug(WEB500GW_DEBUG_TRACE, 
-                "do_read: user template %s not found, using generic\n", 
-                 r->r_template, 0, 0, 0);
-        }
-#endif
 
-    } else {
-        tmpl = ldap_oc2template(ocl, r->r_access->a_tmpllist);
-        if (read_flags &  FLAG_ALT) {  /* alternate attributes */
-            for (tmp = tmpl; tmp != (struct ldap_disptmpl *)NULL; 
-                tmp = tmp->dt_next) {
-                if (LDAP_IS_DISPTMPL_OPTION_SET(tmp, LDAP_DTMPL_OPT_ALTVIEW)) {
-                    tmpl = tmp;
-                    break;
-                }
-            }
-        }
-    }
-
-    if ((rc = web500gw_entry2html(r->r_ld, r, resp, e, tmpl, NULL, NULL,
-              vcard ? 0 : LDAP_DISP_OPT_DOSEARCHACTIONS)) != LDAP_SUCCESS) {
+    if ((rc = web500gw_entry2html(r->r_ld, r, resp, e, NULL, NULL,
+				  !vcard)) != LDAP_SUCCESS) {
             /* do_error(rc, 0); */
             return NOTOK;
     }
@@ -301,18 +284,19 @@ do_special (
     timeout.tv_usec = 0;
     if ((rc = ldap_search_st(r->r_ld, r->r_dn, LDAP_SCOPE_BASE, default_filter,
         read_attrs, 0, &timeout, &res)) != LDAP_SUCCESS) {
-        do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+      //XXARL        do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+      do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
         return NOTOK;
     }
 
     if ((e = ldap_first_entry(r->r_ld, res)) == NULL) {
-        do_error(r, resp, r->r_ld->ld_errno, 0, NULL, NULL);
+      //XXARL        do_error(r, resp, r->r_ld->ld_errno, 0, NULL, NULL);
         return NOTOK;
     }
 
     /* Check r->r_if_modified_since */
     if ((date_val = ldap_get_values(r->r_ld, e, "lastModifiedTime")) != NULL) {
-        resp->resp_last_modified = format_date(*date_val, DATE_FORMAT);
+        resp->resp_last_modified = format_date(*date_val, DATE_FORMAT);	/* *leak* on returned value from format_date without later free */
         if (!(r->r_flags & FLAG_NOCACHE) &&
             r->r_if_modified_since && *(r->r_if_modified_since) &&
             cmp_dates(*date_val, r->r_if_modified_since) != 1) {

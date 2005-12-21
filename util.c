@@ -509,7 +509,7 @@ format_date (
             mydate, 0, 0, 0);
 #endif
 
-    return (strdup(mydate));
+    return (strdup(mydate));	/* returned value must be freed, or we *leak*  */
 }
 
 /* finds the the month number from the month name */
@@ -990,6 +990,10 @@ friendly_label (
         ldap_friendly_name(resp->resp_language->l_conf->c_friendlyfile, 
         label, &resp->resp_language->l_conf->c_fm);
 
+    // this would cause a *leak* unless and until
+    // ldap_free_friendlymap() is called on
+    // resp->resp_language->l_conf->c_fm.
+
     if (f_label == NULL)
         f_label = label;
 #ifdef WEB500GW_DEBUG
@@ -1116,6 +1120,49 @@ access_ok (
     do_error(r, resp, LDAP_INSUFFICIENT_ACCESS, resp->resp_status, 
         right == ACCESS_WRITE ? MSG_ACCESS_READONLY : MSG_ACCESS_COMMON, NULL);
     return NOTOK;
+}
+
+/* this function extracts the most recent error string from the given
+   LDAP session.  the string returned is allocated by the openldap
+   library, and should be freed using ldap_memfree(). 
+*/
+
+char *
+get_ldap_error_str(LDAP *ld)
+{
+  char *ld_error;
+  ldap_get_option(ld, LDAP_OPT_ERROR_STRING, &ld_error);
+
+  return ld_error;
+}
+
+/* this function extracts the most recently matched DN which was
+   involved in an error in the given LDAP session.  the string
+   returned is allocated by the openldap library, and should be freed
+   using ldap_memfree().
+*/
+
+char *
+get_ldap_matched_str(LDAP *ld)
+{
+  char *ld_matched;
+  ldap_get_option(ld, LDAP_OPT_MATCHED_DN, &ld_matched);
+
+  return ld_matched;
+}
+
+int
+get_ldap_result_code(LDAP *ld)
+{
+  int ldap_result;
+  ldap_get_option(ld, LDAP_OPT_RESULT_CODE, &ldap_result);
+  return ldap_result;
+}
+
+int
+set_ldap_sizelmit(LDAP *ld, int limit)
+{
+  ldap_set_option(ld, LDAP_OPT_SIZELIMIT, limit);
 }
 
 #ifdef sunos4

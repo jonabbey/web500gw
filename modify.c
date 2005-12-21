@@ -143,7 +143,7 @@ do_form(
     timeout.tv_usec = 0;
     if ((rc = ldap_search_st(r->r_ld, dn, LDAP_SCOPE_BASE, default_filter,
         search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS) {
-        do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+        do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
         return NOTOK;
     }
     if ((e = ldap_first_entry(r->r_ld, res)) == NULL) {
@@ -236,6 +236,7 @@ do_modify(
     char    **vals;
     int     rc, attrvals = 0, maxattrvals, i, j, valcount, found, differs;
     int     changes = 0, in_home;
+    char    *error_str,
     LDAPMessage     *res, *e;
     BerElement      *ber;
     struct timeval  timeout;
@@ -485,11 +486,11 @@ do_modify(
     if ((rc = ldap_search_st(r->r_ld, dn, LDAP_SCOPE_BASE, default_filter,
         NULL, 0, &timeout, &res)) != LDAP_SUCCESS) {
         /* better error description here ??? */
-        do_error(r, resp, rc, 0, r->r_ld->ld_error, r->r_ld->ld_matched);
+        do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
         return NOTOK;
     }
     if ((e = ldap_first_entry(r->r_ld, res)) == NULL) {
-        do_error(r, resp, r->r_ld->ld_errno, 0, r->r_ld->ld_error, NULL);
+        do_ldap_error(r, resp, r->r_ld->ld_errno, 0, get_ldap_error_str(r->r_ld), NULL);
         return NOTOK;
     }
 
@@ -589,9 +590,17 @@ do_modify(
         if (web500gw_debug) 
             ldap_perror(r->r_ld, "ldap_modify_s");
 #endif
+
+	error_str = get_ldap_error_str(r->r_ld);
+
         msg_fprintf(fp, MSG_MODIFY_ERROR, "iss", rc,
             web500gw_err2string(rc, resp), 
-            r->r_ld->ld_error ? r->r_ld->ld_error : "");
+            error_str ? error_str : "");
+
+	if (error_str) {
+	  ldap_freemem(error_str);
+	}
+
         fputs(MSG_HTML_END, fp);
         fputs("\n", fp);
 

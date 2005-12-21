@@ -24,7 +24,7 @@
 
 #include "lber.h"
 #include "ldap.h"
-#include "disptmpl.h"
+/*#include "disptmpl.h" */
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -32,11 +32,13 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/param.h>
-#ifdef aix
+#include <time.h>
+/*#ifdef aix
 #include <time.h>
 #else
 #include <sys/time.h>
 #endif
+*/
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -133,9 +135,9 @@ int     maxvalues;
 char    *etcdir;
 char    *helpfile;
 char    *attrfile;
-char    *filterfile;
-char    *templatefile;
-char    *friendlyfile;
+// XARL char    *filterfile;
+// XARL char    *templatefile;
+// XARL char    *friendlyfile;
 char    *messagefile;
 char    *friendlyDesc;
 char    *local_suffix;
@@ -143,7 +145,7 @@ char    *g3togif;
 char    *jpegtogif;
 char    *log_format;
 char    *robots;
-LDAPFiltDesc	*filtd;
+// XARL LDAPFiltDesc	*filtd;
 int     home_dn_OK;		/* checked ? */
 int     timelimit;
 int     sizelimit;
@@ -161,7 +163,7 @@ extern char    *generic_ocl[];
 extern char    *vcard_ocl[];
 
 extern char *gw_switch();
-extern int  do_error();
+
 extern int  do_search();
 extern int  do_search_form();
 extern int  process_search_form();
@@ -205,6 +207,9 @@ extern                  find_other_languages();
 extern struct access    *find_access();
 extern char             *friendly_label();
 extern                  log_request();
+extern char             *get_ldap_error_str(LDAP *);
+extern char             *get_ldap_matched_str(LDAP *);
+extern int              get_ldap_result_code(LDAP *);
 
 /* dir_util.c */
 extern LDAP *web500gw_ldap_init();
@@ -305,7 +310,7 @@ typedef struct request {
     int          r_attrnumb;     /* number of user req. attributes */
     unsigned long r_flags;       /* user req. flags */
     unsigned long r_actions;     /* action */
-    char        *r_template;     /* user req. template flag ($tmpl=xxx) */
+  // XARL    char        *r_template;     /* user req. template flag ($tmpl=xxx) */
     char        *r_language;     /* user req. language flag ($lang=xx) */
     char        *r_filter;       /* user req. filter */
     char        *r_postdata;     /* contains data when method == POST */
@@ -334,7 +339,7 @@ struct dncompare {          /* used to sort a list of entries */
     char    *href;          /* the string to print */
     char    *friendly_oc;   /* the friendly string for the objectclass */
     char    *oc;            /* objectclass */
-    struct ldap_disptmpl    *tmpl;  /* display template */
+  // XARL   struct ldap_disptmpl    *tmpl;  /* display template */
     char    *dn;            /* the DN */
     LDAPMessage *entry;     /* the entry */
 } *dnlist[MAX_LISTSIZE];
@@ -367,7 +372,7 @@ extern int fprintf();
 #define FLAG_FILTER      0x00020000   /* implicit, if user gives filter */
 #define FLAG_ALT         0x00040000   /* implicit, for old '/L' URL's */
 #define FLAG_LANGUAGE    0x00100000   /* request a special language */
-#define FLAG_TMPL        0x00200000   /* request a special template */
+// XARL #define FLAG_TMPL        0x00200000   /* request a special template */
 #define FLAG_VCARD       0x00400000   /* implicit vcard attr: entry as vCard*/
 #define FLAG_NOCACHE     0x00800000   /* send always no-cache page  */
 #define FLAG_NOHREFDN    0x01000000   /* don't print DN as HREF */
@@ -454,7 +459,7 @@ struct conf_files {
     char    *c_helpfile;            /* name of helpfile */
     char    *c_attrfile;            /* name of helpfile for attributes */
     char    *c_friendlyfile;        /* name of friendlyfile */
-    FriendlyMap *c_fm;
+  // XARL    FriendlyMap *c_fm;
     char    *c_messagefile;         /* name of messagefile */
     char    *c_msg[MSG_count + 1];
     char    **c_errmsg;
@@ -483,10 +488,10 @@ struct access {
     char                *a_bind_dn;       /* bind as */
     char                *a_bind_pw;       /* ... with pw */
     char                *a_suffix;        /* suffix for ACCESS specific files */
-    char                *a_tmplfile;      /* templatefile to use */
-    struct ldap_disptmpl *a_tmpllist;     /* display templates */
-    char                *a_filterfile;    /* name of search filter file */
-    LDAPFiltDesc        *a_filtd;
+  // XARL    char                *a_tmplfile;      /* templatefile to use */
+  // XARL   struct ldap_disptmpl *a_tmpllist;     /* display templates */
+  // XARL   char                *a_filterfile;    /* name of search filter file */
+  // XARL   LDAPFiltDesc        *a_filtd;
     struct language     *a_lang;          /* the language structure */
     struct access          *a_next;
 };
@@ -528,3 +533,7 @@ extern struct config_options access_rights[];
 
 #define MOD_ATTR_USED       (LDAPMod *)-1
 #define MOD_VALUE_USED      (char *)-1
+
+extern int  do_error(REQUEST *, RESPONSE *, int, int, char *, char *);
+extern int  do_ldap_error(REQUEST *, RESPONSE *, int, int, char *, char *);
+extern int  do_error_dispatch(REQUEST *, RESPONSE *, int, int, char *, char *, int, int);

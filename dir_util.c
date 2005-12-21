@@ -91,7 +91,7 @@ web500gw_ldap_init(
         if (basic_auth) {
             do_auth_bind(r, resp);
         } else if (printerror) {
-            do_error(r, resp, rc, 0, ld->ld_error, NULL);
+	  do_ldap_error(r, resp, rc, 0, get_ldap_error_str(ld), NULL);
         }
         return (LDAP *)0;
     }
@@ -307,12 +307,12 @@ friendly_dn (
         while (isspace(*cp)) cp++;
         f_label = friendly_label(resp, cp);
         len += strlen(f_label);
-        fufn = (char *) calloc(1, len + 1);
+        fufn = (char *) calloc(1, len + 1); /* *leak* if not freed */
         strcpy(fufn, ufn);
         strcat(fufn, ", ");
         strcat(fufn, f_label);
     } else {
-        fufn = strdup(friendly_label(resp, ufn));
+        fufn = strdup(friendly_label(resp, ufn)); /* *leak* if not freed */
     }
 #ifdef WEB500GW_DEBUG
     Web500gw_debug(WEB500GW_DEBUG_UTIL, " friendly_dn >%s<\n", fufn, 0, 0, 0);
@@ -345,12 +345,12 @@ friendly_rdn (
     s = ldap_explode_dn(dn, notypes);
     if (notypes) {
         if (s[1] == NULL) {   /* toplevel */
-            rdn = strdup(friendly_label(resp, s[0]));
+            rdn = strdup(friendly_label(resp, s[0])); /* *leak* if not freed */
         } else {
-            rdn = clean_ufn(s[0]);
+            rdn = clean_ufn(s[0]); /* *leak* if not freed */
         }
     } else {
-        rdn = strdup(s[0]);
+        rdn = strdup(s[0]);	/* *leak* if not freed */
     }
     ldap_value_free(s);
 
@@ -380,7 +380,7 @@ clean_ufn (char *ufn)
     if (ufn == NULL)
         return NULL;
     cp = ufn;
-    next = new = (char *) calloc(1, strlen(ufn) + 1);
+    next = new = (char *) calloc(1, strlen(ufn) + 1); /* *leak* if not freed */
     while (*ufn != '\0') {
         if (*ufn == '"') {        /* remove quotes */
             ufn++;
