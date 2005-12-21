@@ -796,8 +796,14 @@ process_search_form (
 	       is: */
             match = hex_qdecode(lp + 6);
         } else if (query == NULL && strncasecmp(lp, "query=", 6) == 0) {
-	  /* XARL query method wasn't used by the HTML we've been
-	     using */
+	  /*
+	    XARL
+
+	    The search operand that the user keys into the web page.
+	    Generally will be someone's name or department or so
+	    forth.
+
+	  */
             query = hex_qdecode(lp + 6);
         } else if (strncasecmp(lp, "base=", 5) == 0) {
 	  /* XARL
@@ -886,6 +892,16 @@ process_search_form (
       query ? query : "", searchattr ? searchattr : "", oc ? oc : "", 0);
 #endif
 
+    /*
+      XARL
+
+      Here is where we craft the query filter that we will apply in
+      the search process.  match is an old-school (no longer
+      supported) LDAP filter string such as '%a=*%v*', query is the
+      operand to search on, and searchattr is an LDAP attribute name
+      to perform the query on.
+    */
+
     len = strlen(match) + strlen(query) + strlen(searchattr);
     matchquery = calloc(1, len);
     ldap_build_filter(matchquery, len, match, NULL, NULL,
@@ -894,6 +910,14 @@ process_search_form (
     valwords[1] = matchquery;
     ldap_build_filter(buf, sizeof(buf), filtertemplate, "S=", NULL,
         searchattr, NULL, valwords);
+
+    /*
+      XARL
+
+      buf should now contains a native LDAP search expression (RFC
+      2254 compliant) which searches searchattr for query on oc
+      (objectclass), under the search base set in the args.
+    */
 
 #ifdef WEB500GW_DEBUG
     Web500gw_debug(WEB500GW_DEBUG_PARSE,
