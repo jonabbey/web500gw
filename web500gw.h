@@ -232,6 +232,10 @@ extern char	Version[];
 extern char	LDAP_Version[];
 extern char	Compiled[];
 
+/* filters.c */
+
+#include "filters.h"
+
 #ifndef NOTOK
 #define NOTOK   (-1)
 #endif

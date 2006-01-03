@@ -122,10 +122,10 @@ MKDIR   = mkdir
 
 LIBS	= $(LDAPLIBS) $(KRBLIBFLAG) $(KRBLIBS) $(LIBEFENCE)
 
-SRCS	=	web500gw.c read.c search.c bind.c modify.c add.c delete.c modrdn.c\
+SRCS	=	web500gw.c filters.c read.c search.c bind.c modify.c add.c delete.c modrdn.c\
             navigation.c util.c web_util.c dir_util.c ldap2html.c init.c \
             config.c detach.c setproctitle.c
-OBJS	= 	web500gw.o read.o search.o bind.o modify.o add.o delete.o modrdn.o \
+OBJS	= 	web500gw.o filters.o read.o search.o bind.o modify.o add.o delete.o modrdn.o \
             navigation.o util.o web_util.o dir_util.o ldap2html.o messages.o \
             init.o config.o detach.o setproctitle.o gwversion.o
 

@@ -17,5 +17,5 @@
  * $Id$
  */
 
-char *construct_first_ldap_filter(char *);
-char *construct_next_ldap_filter(char *);
+extern char *construct_first_ldap_filter(char *);
+extern char *construct_next_ldap_filter(char *);

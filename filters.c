@@ -17,8 +17,7 @@
  * $Id$
  */
 
-#include <stddef.h>
-#include "filters.h"
+#include "web500gw.h"
 
 static int filter_index = 0;
 
