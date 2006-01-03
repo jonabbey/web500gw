@@ -22,7 +22,8 @@ do_search(
     RESPONSE        *resp
 )
 {
-    char            *filtertype, **search_attrs, *search_filter;
+  // XARL    char            *filtertype, **search_attrs, *search_filter;
+    char            **search_attrs, *search_filter;
     char            *print_filter, *human_filter;
     int             scope, count = 0, rc, i = 0, j, in_home;
     struct timeval  timeout;
@@ -166,8 +167,8 @@ do_search(
     else
       {
         /* let's do the search */
-        filtertype = (scope == LDAP_SCOPE_ONELEVEL ? "web500gw onelevel" :
-		      "web500gw subtree");
+	/*        filtertype = (scope == LDAP_SCOPE_ONELEVEL ? "web500gw onelevel" :
+		  "web500gw subtree");*/
 
 	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, 
 			(void *) (scope == LDAP_SCOPE_ONELEVEL ? LDAP_DEREF_FINDING : LDAP_DEREF_ALWAYS));
@@ -178,19 +179,42 @@ do_search(
 
         /* try all filters til we have success */
 
-	/* what we're doing here is looking for filters in our
+	/* What we're doing here is looking for filters in our
 	   ldapfilter.conf file that match the filtertype ("web500gw
-	   onelevel" or "web500gw subtree") and the value (i.e.,
-	   ldap_getfirstfilter applies a regular expression in the
-	   ldapfilter.conf file to determine filters that match the
-	   style of input we've been given in 'search_filter'.
+	   onelevel" or "web500gw subtree") and the value (i.e., that
+	   contained in search_filter) is matched against a regular expression
+	   in the ldapfilter.conf file that this code is drawing from.
+
 	   'search_filter' here is not truly an LDAP filter
 	   expression, but rather is an human-generated input string
-	   which is to be used as a search operand.
+	   which is to be used as a search operand, such as 'Jonathan
+	   Abbey', or '835-3199'.
 
 	   r->r_access->a_filtd is a LDAPFiltDesc pointer, which
 	   actually isn't valid without having access to the old
-	   OpenLDAP/umich filter APIs */
+	   OpenLDAP/umich filter APIs 
+
+	   The filter that is returned is supposed to have the value
+	   in 'search_filter' substituted into a properly formed LDAP
+	   query.  Things like "first initial and last name" searches
+	   are automatically constructed in accordance with the text
+	   string recognizers in ldapfilter.conf that examine
+	   search_filter.
+
+	   Since we're having to eliminate all dependence on the ldap
+	   filter operations, we'll have to come up with something
+	   else to handle these searches reasonably.. possibly by
+	   hard-wiring the searches we expect to need into this C
+	   file.
+
+	   Note that this loop has a second purpose.. it will go
+	   through and try as many filters are defined as it can
+	   match, attempting to probe the LDAP server with the
+	   successive search types, to the extent of matching against
+	   different sets of standard LDAP attributes with each
+	   search.  A lot of the utility of the multiple search
+	   patterns should be achievable by crafting an appropriately
+	   loose disjunctive, fixed, search pattern, I think.  */
 
         for (fi = ldap_getfirstfilter(r->r_access->a_filtd, filtertype, search_filter);
 	     fi != NULL;
