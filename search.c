@@ -180,15 +180,19 @@ do_search(
         /* try all filters til we have success */
 
 	/* What we're doing here is looking for filters in our
-	   ldapfilter.conf file that match the filtertype ("web500gw
-	   onelevel" or "web500gw subtree") and the value (i.e., that
-	   contained in search_filter) is matched against a regular expression
-	   in the ldapfilter.conf file that this code is drawing from.
+	   ldapfilter.conf file that match both the filtertype
+	   ("web500gw onelevel" or "web500gw subtree") and the value
+	   (i.e., that contained in search_filter).  The value in
+	   search_filter is matched against a set of regular
+	   expressions in the ldapfilter.conf file, one per call to
+	   ldap_getfirstfilter() and ldap_getnextfilter().
 
-	   'search_filter' here is not truly an LDAP filter
-	   expression, but rather is an human-generated input string
-	   which is to be used as a search operand, such as 'Jonathan
-	   Abbey', or '835-3199'.
+	   'search_filter' derives directly from the input provided by
+	   the user to the web500gw web form, and is human-generated.
+	   Typical values for search_filter might include "Jonathan
+	   Abbey", "835-3199", or "D. Scott".  Based on the format of
+	   the string provided, different filter definitions from
+	   ldapfilter.conf may match, and thus be searched on.
 
 	   r->r_access->a_filtd is a LDAPFiltDesc pointer, which
 	   actually isn't valid without having access to the old
@@ -216,6 +220,28 @@ do_search(
 	   patterns should be achievable by crafting an appropriately
 	   loose disjunctive, fixed, search pattern, I think.  */
 
+	if ((rc = ldap_search_st(r->r_ld, base_dn, scope, fi->lfi_filter,
+				 search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS && 
+	    rc != LDAP_SIZELIMIT_EXCEEDED && rc != LDAP_INSUFFICIENT_ACCESS 
+	    && rc != LDAP_TIMELIMIT_EXCEEDED && rc != LDAP_TIMEOUT
+	    && rc != LDAP_PARTIAL_RESULTS)
+	  {
+	    do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
+	    return NOTOK;
+	  }
+
+	if ((count = ldap_count_entries(r->r_ld, res)) > 0)
+	  {
+	    /* found something */
+	    friendlyDesc = friendly_label(resp, fi->lfi_desc);
+#ifdef WEB500GW_DEBUG
+	    Web500gw_debug(WEB500GW_DEBUG_FILTER, 
+			   " searched ... and found %d results!\n", count, 0, 0, 0);
+#endif
+	    break;
+	  }
+
+	/*
         for (fi = ldap_getfirstfilter(r->r_access->a_filtd, filtertype, search_filter);
 	     fi != NULL;
 	     fi = ldap_getnextfilter(r->r_access->a_filtd))
@@ -237,7 +263,7 @@ do_search(
 
             if ((count = ldap_count_entries(r->r_ld, res)) > 0)
 	      {
-                /* found something */
+                // found something
                 friendlyDesc = friendly_label(resp, fi->lfi_desc);
 #ifdef WEB500GW_DEBUG
                 Web500gw_debug(WEB500GW_DEBUG_FILTER, 
@@ -251,6 +277,8 @@ do_search(
 			   " searched ... and found no results!\n", 0, 0, 0, 0);
 #endif
 	  }
+
+	*/
 
 	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_ALWAYS);
       }
