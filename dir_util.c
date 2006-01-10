@@ -586,7 +586,7 @@ strip_ufn_dn (char * ufn_dn, char *base_ufn_dn)
   // we know base_ufn_dn can't be longer than ufn_dn, or else we would
   // have returned early, above
 
-  i = 1;
+  i = 0;
 
   while (p1 > ufn_dn && *p1 == *p2)
     {
