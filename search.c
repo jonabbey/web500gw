@@ -25,6 +25,7 @@ do_search(
     char            *filtertype, **search_attrs, *search_filter;
     char            *print_filter, *human_filter;
     int             scope, count = 0, rc, i = 0, j, in_home;
+    int option_param;
     struct timeval  timeout;
     LDAPFiltInfo    *fi;
     LDAPMessage     *e, *res;
@@ -129,7 +130,9 @@ do_search(
         timeout.tv_sec = timelimit;
         timeout.tv_usec = 0;
         ldap_ufn_timeout((void *) &timeout);
-	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_FINDING);
+
+	option_param = LDAP_DEREF_FINDING;
+	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *) &option_param);
 #ifdef WEB500GW_DEBUG
         Web500gw_debug(WEB500GW_DEBUG_TRACE, "ldap_ufn_search_s (%s)\n", 
             search_filter, 0, 0, 0);
@@ -154,8 +157,11 @@ do_search(
         /* let's do the search */
         filtertype = (scope == LDAP_SCOPE_ONELEVEL ? "web500gw onelevel" :
             "web500gw subtree");
+
+	option_param = (scope == LDAP_SCOPE_ONELEVEL ? LDAP_DEREF_FINDING : LDAP_DEREF_ALWAYS);
+
 	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, 
-			(void *) (scope == LDAP_SCOPE_ONELEVEL ? LDAP_DEREF_FINDING : LDAP_DEREF_ALWAYS));
+			(void *) &option_param);
         timeout.tv_sec = timelimit;
         timeout.tv_usec = 0;
     

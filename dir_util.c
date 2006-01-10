@@ -33,6 +33,7 @@ web500gw_ldap_init(
 {
     LDAP    *ld;
     int     rc, basic_auth = 0;
+    int option_param;
     char    *who, *password;
 
 #ifdef WEB500GW_DEBUG
@@ -52,10 +53,17 @@ web500gw_ldap_init(
          * NULL); */
         return (LDAP *)0;
     }
+
     if (r->r_flags & FLAG_DEREFALIAS)
-	ldap_set_option(ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_ALWAYS);
+      {
+	option_param = LDAP_DEREF_ALWAYS;
+      }
     else
-	ldap_set_option(ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_FINDING);
+      {
+	option_param = LDAP_DEREF_FINDING;
+      }
+
+    ldap_set_option(ld, LDAP_OPT_DEREF, (void *) &option_param);
 
     if (bind_as) {
         who = bind_as;
