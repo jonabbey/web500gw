@@ -197,7 +197,8 @@ do_search(
                 " searched ... and found no results!\n", 0, 0, 0, 0);
 #endif
         }
-	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_ALWAYS);
+	option_param = LDAP_DEREF_ALWAYS;
+	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *) &option_param);
 	/* }*/
 
     if (count < 1) {        /* nothing found :-( */
