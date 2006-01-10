@@ -595,6 +595,17 @@ strip_ufn_dn (char * ufn_dn, char *base_ufn_dn)
       i++;
     }
 
+  /* i now tells us how many characters from the end of ufn_dn we need
+     to cut off in order to remove the matching suffix.  we also need
+     to trim any commas and whitespace from the end of our truncated
+     ufn_dn. */
+
+  while (p1 > ufn_dn && isspace(*p1) || *p1 == ',')
+    {
+      p1--;
+      i++;
+    }
+
   result = malloc(ufn_dn_length - i + 1);
 
   if (result)
