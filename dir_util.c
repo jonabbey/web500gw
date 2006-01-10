@@ -525,6 +525,88 @@ strip_dn (char * dn, char *base_dn)
     return(ret);
 }
 
+/*------------------------------------------------------------------------------
+
+                                                                  strip_ufn_dn()
+
+ Strips a base 'friendly' DN from a 'friendly' DN.  This differs from
+ strip_dn, above, in that it operates strictly as a textual operation,
+ removing the base_ufn_dn string from the end of ufn_dn and returning
+ it, if indeed base_ufn_dn is a suffix for ufn_dn.  The above
+ function, strip_dn(), depends on the ldap_explode_dn() function
+ working properly with ufn DN's, which is no longer the case in recent
+ versions of OpenLDAP.
+
+ The returned string is allocated in this function, and would
+ ordinarily have to be freed.  web500gw actually forks a separate,
+ short-lived process for each search, though, so that's not really
+ important in practice.
+
+ This function may return NULL if memory cannot be allocated for a
+ copy of the result, or if ufn_dn is NULL.
+
+------------------------------------------------------------------------------*/
+char *
+strip_ufn_dn (char * ufn_dn, char *base_ufn_dn)
+{
+  char *p1, *p2;
+  char *result;
+  int i = 0;
+  int ufn_dn_length, base_ufn_dn_length;
+
+  /* -- */
+
+  if (ufn_dn == NULL)
+    {
+      return NULL;
+    }
+
+  if (base_ufn_dn == NULL)
+    {
+      return strdup(ufn_dn);
+    }
+
+  ufn_dn_length = strlen(ufn_dn);
+  base_ufn_dn_length = strlen(base_ufn_dn);
+
+  p1 = strstr(ufn_dn, base_ufn_dn);
+
+  if (p1 == NULL || p1 == ufn_dn ||
+      ufn_dn_length == 0 || base_ufn_dn_length == 0)
+    {
+      return strdup(ufn_dn);
+    }
+
+  // advance p1 and p2 to the last character of ufn_dn and
+  // base_ufn_dn, respectively.
+
+  p1 = ufn_dn + ufn_dn_length - 1;
+  p2 = base_ufn_dn + base_ufn_dn_length - 1;
+
+  // we know base_ufn_dn can't be longer than ufn_dn, or else we would
+  // have returned early, above
+
+  i = 1;
+
+  while (p1 > ufn_dn && *p1 == *p2)
+    {
+      p1--;
+      p2--;
+      i++;
+    }
+
+  result = malloc(ufn_dn_length - i + 1);
+
+  if (result)
+    {
+      memcpy(result, ufn_dn, ufn_dn_length - i);
+      result[ufn_dn_length - i] = '\0';
+
+      return result;
+    }
+
+  return NULL;
+}
 
 #ifdef UP_SMALL
 /* Make UFN components to hypertext links */

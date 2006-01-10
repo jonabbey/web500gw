@@ -415,7 +415,7 @@ do_search(
         }
         if (base_len > 0) {
             /* strip search base from result */
-            result_ufn = strip_dn(result_ufn, base_ufn);
+            result_ufn = strip_ufn_dn(result_ufn, base_ufn);
         }
 #ifdef nodef
             cp = result_ufn + strlen(result_ufn) - 1;

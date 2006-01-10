@@ -228,6 +228,7 @@ extern char *href_dn();
 extern char *access_right2string();
 extern int  isinhome();
 extern char *strip_dn();
+extern char *strip_ufn_dn(char *, char *);
 
 extern char	version[];
 extern char	Version[];
