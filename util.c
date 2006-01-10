@@ -18,7 +18,7 @@
  */
 
 #include <unistd.h>
-#include <gnuregex.h>
+/* #include <gnuregex.h> */
 #include "web500gw.h"
 
 /* msg_?printf: formats (and prints out) a string contained in message file */
@@ -55,8 +55,8 @@ msg_snprintf (char *buf, int buflen, char *fmt, char *format, ...)
 static 
 do_msg_snprintf (char *buf, int buflen, char *fmt, char *format, va_list ap)
 {
-    int a, i, *ivars, len;
-    char c, *f, *ff, *fo, *fout, *p, *s, **svars, digits[20];
+  int a, c, i, *ivars, len;
+    char *f, *ff, *fo, *fout, *p, *s, **svars, digits[20];
 
     if (buflen <= 0)
         return(0);
@@ -77,8 +77,8 @@ do_msg_snprintf (char *buf, int buflen, char *fmt, char *format, va_list ap)
             case 'i': i = va_arg(ap, int); 
                     ivars[a] = i;
                     break;
-            case 'c': c = va_arg(ap, char); 
-                    ivars[a] = (int)c;
+            case 'c': c = va_arg(ap, int); 
+                    ivars[a] = c;
                     break;
         }
         s++; a++;
@@ -509,7 +509,7 @@ format_date (
             mydate, 0, 0, 0);
 #endif
 
-    return (strdup(mydate));	/* returned value must be freed, or we *leak*  */
+    return (strdup(mydate));
 }
 
 /* finds the the month number from the month name */
@@ -990,10 +990,6 @@ friendly_label (
         ldap_friendly_name(resp->resp_language->l_conf->c_friendlyfile, 
         label, &resp->resp_language->l_conf->c_fm);
 
-    // this would cause a *leak* unless and until
-    // ldap_free_friendlymap() is called on
-    // resp->resp_language->l_conf->c_fm.
-
     if (f_label == NULL)
         f_label = label;
 #ifdef WEB500GW_DEBUG
@@ -1162,7 +1158,7 @@ get_ldap_result_code(LDAP *ld)
 int
 set_ldap_sizelmit(LDAP *ld, int limit)
 {
-  ldap_set_option(ld, LDAP_OPT_SIZELIMIT, limit);
+  ldap_set_option(ld, LDAP_OPT_SIZELIMIT, &limit);
 }
 
 #ifdef sunos4

@@ -74,6 +74,7 @@ main (
     int            s, ns, rc, i, pid;
     int            derefaliases_flag = 0, dosyslog_flag = 0, print_version = 0;
     int            port_flag = 0, ldapport_flag = 0;
+    int            ldap_debug;
     char           *myname, *remote;
     char           *language_flag = NULL, *ldaphost_flag = NULL;
     char           *etcdir_flag = NULL;
@@ -301,9 +302,6 @@ main (
                 inet_ntoa(from.sin_addr), 0, 0);
 #endif
 
-	// since we fork to handle each request, we don't have to
-	// worry about memory leaks in our processing, yay!
-
         switch(pid = fork()) {
         case 0:        /* child */
             close(s);
@@ -485,10 +483,7 @@ do_queries(
     /* init request and response structures */
     r->r_tm = time(0);          /* current time - for HTTP-Date: */
     r->r_dn = r->r_if_modified_since =  r->r_referer = r->r_attrs[0] = 
-      // XARL    r->r_template = r->r_language = r->r_filter = r->r_postdata = 
-      // XARL    r->r_useragent = r->r_authorization = NULL;
-
-    r->r_language = r->r_filter = r->r_postdata = 
+    r->r_template = r->r_language = r->r_filter = r->r_postdata = 
     r->r_useragent = r->r_authorization = NULL;
     r->r_browser = browser_opts;
     r->r_httpversion = r->r_content_length = r->r_attrnumb =  r->r_flags = 0;
@@ -958,17 +953,14 @@ do_queries(
                 if ((tmpl = strchr(flags, '=')) != NULL) {
                 /* flag=value -> template or language */
                     *tmpl++ = '\0';
-
-		    // XARL                    if (strcasecmp(flags, "tmpl") == 0) {
-		    // XARL                        r->r_template = tmpl;
-		    // XARL                        r->r_flags |= FLAG_TMPL;
-		    // XARL#ifdef WEB500GW_DEBUG
-		    // XARL                        Web500gw_debug(WEB500GW_DEBUG_PARSE, "TEMPLATE: %s\n",
-		    // XARL                            r->r_template, 0, 0, 0);
-		    // XARL#endif
-		    // XARL                    }  if (strcasecmp(flags, "lang") == 0) {
-
-		    if (strcasecmp(flags, "lang") == 0) {
+                    if (strcasecmp(flags, "tmpl") == 0) {
+                        r->r_template = tmpl;
+                        r->r_flags |= FLAG_TMPL;
+#ifdef WEB500GW_DEBUG
+                        Web500gw_debug(WEB500GW_DEBUG_PARSE, "TEMPLATE: %s\n",
+                            r->r_template, 0, 0, 0);
+#endif
+                    } else if (strcasecmp(flags, "lang") == 0) {
                         if ((lang = find_language(tmpl))) {
                             resp->resp_language = lang;
                             r->r_language = resp->resp_language->l_content_lang;
@@ -999,10 +991,10 @@ do_queries(
         }
     }
 
-    // XARL    if (r->r_template) {
-    // XARL        if (access_ok(r, resp, ACCESS_ATTRS) == NOTOK)
-    // XARL            goto end;
-    // XARL    }
+    if (r->r_template) {
+        if (access_ok(r, resp, ACCESS_ATTRS) == NOTOK)
+            goto end;
+    }
     if (r->r_dn && *(r->r_dn) == 'H') {   /* HELP! */
         r->r_dn++;
         do_help(r, resp);
@@ -1085,8 +1077,7 @@ do_queries(
         if (access_ok(r, resp, ACCESS_WRITE) == OK) {
             do_addform(r, resp);
         }
-	// XARL    } else if (r->r_filter && r->r_flags !=  FLAG_VCARD && !(r->r_template)) {
-    } else if (r->r_filter && r->r_flags !=  FLAG_VCARD) {
+    } else if (r->r_filter && r->r_flags !=  FLAG_VCARD && !(r->r_template)) {
         do_search(r, resp);
     } else {
         do_read(r, resp);
@@ -1154,62 +1145,13 @@ do_help(
 
 
 int
-do_error
-(
+do_error(
     REQUEST     *r,
     RESPONSE    *resp,
     int         ldap_code,
     int         http_status,
     char        *extra_text,
     char        *matched
-)
-{
-  return do_error_dispatch(r,resp,ldap_code,http_status, extra_text, matched, 0, 0);
-}
-
-
-/* This function processes an error that arises during the processing
-   of an LDAP request. 
-
-   extra_text and matched, if non-null, will be freed using the
-   ldap_freemem() call.
-
-*/
-
-int
-do_ldap_error
-(
-    REQUEST     *r,
-    RESPONSE    *resp,
-    int         ldap_code,
-    int         http_status,
-    char        *extra_text,
-    char        *matched
-)
-{
-  return do_error_dispatch(r,resp,ldap_code,http_status, extra_text, matched, 1, 1);
-}
-
-/* This function processes an error that arises during the processing
-   of a request. 
-
-   extra_text is a descriptive message string 
-   matched is a pointer to the DN that the error was encountered on.
-   free_extra_text: if true, extra_text will be freed with ldap_freemem().
-   free_matched: if true, matched will be freed with ldap_freemem().
-
-*/
-
-int
-do_error_dispatch(
-    REQUEST     *r,
-    RESPONSE    *resp,
-    int         ldap_code,
-    int         http_status,
-    char        *extra_text,
-    char        *matched,
-    int         free_extra_text,
-    int         free_matched
 )
 {
     char    *s, *matchmsg = NULL, *mdn, *expl;
@@ -1253,7 +1195,7 @@ do_error_dispatch(
     }
 
     if (r->r_method == HEAD) {
-      goto exit;
+        return OK;
     }
     if (resp->resp_htmlheader == 0) {
         msg_fprintf(fp, MSG_HTML_START_ERROR, "s", MSG_ERROR);
@@ -1286,18 +1228,6 @@ do_error_dispatch(
     }
     if (matchmsg)
         free(matchmsg);
-
- exit:
-    if (free_extra_text && extra_text)
-      {
-	ldap_freemem(extra_text);
-      }
-
-    if (free_matched && matched)
-      {
-	ldap_freemem(matched);
-      }
-
     return OK;
 }
 

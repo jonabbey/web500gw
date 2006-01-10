@@ -23,6 +23,7 @@ web500gw_entry2html(
     REQUEST                 *r,
     RESPONSE                *resp,
     LDAPMessage             *entry,
+    struct ldap_disptmpl    *tmpl,
     char                    **defattrs,
     char                    ***defvals,
     unsigned long           opts
@@ -33,6 +34,8 @@ web500gw_entry2html(
     int     oneline, form, addform, list, search, table, valsonly, vcard;
     int     in_table = 0, in_dl = 0;
     char    *dn, *f_label, **vals, filter[BUFSIZ];
+    struct ldap_tmplitem    *rowp, *colp;
+    struct ldap_adddeflist  *defaults;
 
     dn = strdup(r->r_dn);
 
@@ -77,70 +80,242 @@ web500gw_entry2html(
     if (vcard)
         fputs ("BEGIN:vCard\n", fp);
 
-    /* use generic template */
-    BerElement  *ber;
-    char        *attr;
+    if (tmpl == NULL) {       /* use generic template */
+        BerElement  *ber;
+        char        *attr;
 
-    fprintf (fp, "\n<!-- Using generic template, flags %s -->\n",
+        fprintf (fp, "\n<!-- Using generic template, flags %s -->\n",
              flag2string(r->r_flags));
-    ber = NULL;
-    for (i = 0; i < r->r_attrnumb; i++) {
-      if (table && in_table == 0) {
-	if (form)
-	  fprintf(fp, "\n<P>%s\n", r->r_flags & FLAG_BORDER ? 
-		  MSG_TABLE_BORDER_FORM : MSG_TABLE_FORM);
-	else
-	  fprintf(fp, "\n<P>%s\n", r->r_flags & FLAG_BORDER ? 
-		  MSG_TABLE_BORDER : MSG_TABLE);
-	in_table = 1;
-      } else if (list && in_dl == 0) {
-	fputs("<DL>", fp);
-	in_dl = 1;
-      }
+        ber = NULL;
+        for (i = 0; i < r->r_attrnumb; i++) {
+            if (table && in_table == 0) {
+                if (form)
+                    fprintf(fp, "\n<P>%s\n", r->r_flags & FLAG_BORDER ? 
+                        MSG_TABLE_BORDER_FORM : MSG_TABLE_FORM);
+                else
+                    fprintf(fp, "\n<P>%s\n", r->r_flags & FLAG_BORDER ? 
+                        MSG_TABLE_BORDER : MSG_TABLE);
+                in_table = 1;
+            } else if (list && in_dl == 0) {
+                fputs("<DL>", fp);
+                in_dl = 1;
+            }
 
-      attr = r->r_attrs[i];
+            attr = r->r_attrs[i];
 /*
         for (attr = ldap_first_attribute(ld, entry, &ber);
                 NONFATAL_LDAP_ERR(err) && attr != NULL;
                 attr = ldap_next_attribute(ld, entry, ber)) 
  */
-      label_buf[0] = '\0';
-      value_buf[0] = '\0';
-      if ((vals = ldap_get_values(ld, entry, attr)) == NULL) {
-	freevals = 0;
+            label_buf[0] = '\0';
+            value_buf[0] = '\0';
+            if ((vals = ldap_get_values(ld, entry, attr)) == NULL) {
+                freevals = 0;
 #ifdef nodef
-	if (defattrs != NULL) {
-	  for (i = 0; defattrs[i] != NULL; ++i) {
-	    if (strcasecmp(attr, defattrs[ i ]) == 0) {
-	      break;
-	    }
-	  }
-	  if (defattrs[i] != NULL) {
-	    vals = defvals[i];
-	  }
-	}
+                if (defattrs != NULL) {
+                    for (i = 0; defattrs[i] != NULL; ++i) {
+                        if (strcasecmp(attr, defattrs[ i ]) == 0) {
+                            break;
+                        }
+                    }
+                    if (defattrs[i] != NULL) {
+                        vals = defvals[i];
+                    }
+                }
 #endif
-      } else {
-	freevals = 1;
-      }
+            } else {
+                freevals = 1;
+            }
 
-      if (islower(*attr)) {        /* cosmetic -- upcase attr. name */
-	*attr = toupper(*attr);
-      }
+            if (islower(*attr)) {        /* cosmetic -- upcase attr. name */
+                *attr = toupper(*attr);
+            }
 
-      err = web500gw_vals2html(ld, r, resp, dn, vals, attr,
-			       LDAP_SYN_CASEIGNORESTR, 0, NULL);
-      if (freevals) {
-	ldap_value_free(vals);
-      }
-      print_out(r, resp);
-      fflush(fp);
+            err = web500gw_vals2html(ld, r, resp, dn, vals, attr,
+                    LDAP_SYN_CASEIGNORESTR, 0, NULL);
+            if (freevals) {
+                ldap_value_free(vals);
+            }
+            print_out(r, resp);
+            fflush(fp);
+        }
+        if (ber != NULL) {
+            ber_free(ber, 1);
+        }
+    } else {        /* Not Generic template */
+        if (! vcard)
+            fprintf(fp, "\n<!-- Using template: %s, flags %s -->\n", 
+                tmpl->dt_name, flag2string(r->r_flags));
+        for (rowp = ldap_first_tmplrow(tmpl);
+                NONFATAL_LDAP_ERR(err) && rowp != NULLTMPLITEM;
+                rowp = ldap_next_tmplrow(tmpl, rowp)) {
+            /* start of a line / row */ 
+
+            if (table && in_table == 0) {
+                if (form || addform)
+                    fprintf(fp, "\n<P>%s\n", r->r_flags & FLAG_BORDER ? 
+                        MSG_TABLE_BORDER_FORM : MSG_TABLE_FORM);
+                else
+                    fprintf(fp, "\n<P>%s\n", r->r_flags & FLAG_BORDER ? 
+                        MSG_TABLE_BORDER : MSG_TABLE);
+                in_table = 1;
+            } else if (list && in_dl == 0) {
+                fputs("<DL>", fp);
+                in_dl = 1;
+            }
+
+            label_buf[0] = '\0';
+            value_buf[0] = '\0';
+            for (colp = ldap_first_tmplcol(tmpl, rowp); colp != NULLTMPLITEM;
+                    colp = ldap_next_tmplcol(tmpl, rowp, colp)) {
+                    /* same line / row */
+                freevals = 0;
+
+                if (r->r_flags & FLAG_ATTRSONLY) { /* only wanted attrs */
+                    if (colp->ti_attrname == NULL)
+                        continue;
+                    i = 0;
+                    show = 0;
+                    while (i < r->r_attrnumb && r->r_attrs[i]) {
+                        if (strcasecmp(r->r_attrs[i], 
+                                       colp->ti_attrname) == 0) {
+                            show = 1;
+                            break;
+                        }
+                        i++;
+                    }
+                    if (! show)
+                        continue;
+                }
+
+                if (*label_buf && !vcard)
+                    /* add attribute label, but not in vcard */
+                    sprintf(label_buf + strlen(label_buf), ", ");
+                if (*value_buf)
+                    sprintf(value_buf + strlen(value_buf), vcard ? "," : " ");
+                vals = NULL;
+
+                if (addform) {      /* looking for default values */
+                    if (colp->ti_attrname != NULL) {
+                        i = 0;
+                        for (defaults = tmpl->dt_adddeflist; 
+                             defaults && i < BUFSIZ;
+                             defaults = defaults->ad_next) {
+                            if (strcasecmp(colp->ti_attrname,
+                                        defaults->ad_attrname) == 0) {
+                                if (!vals)
+                                    vals = (char **)calloc(BUFSIZ, sizeof(char *));
+    
+                                if (defaults->ad_source == LDAP_ADSRC_CONSTANTVALUE) {
+                                    vals[i++] = defaults->ad_value;
+                                } else if (defaults->ad_source == LDAP_ADSRC_ADDERSDN) {
+                                    vals[i++] = r->r_binddn;
+                                }
+                            }
+                        }
+                        if (vals)
+                            vals[i] = NULL;
+                    }
+                } else if (colp->ti_attrname == NULL || 
+                    (vals = ldap_get_values(ld, entry, colp->ti_attrname)) == NULL) {
+#ifdef nodef
+                    if (!LDAP_IS_TMPLITEM_OPTION_SET(colp,
+                            LDAP_DITEM_OPT_HIDEIFEMPTY) && defattrs != NULL
+                            && colp->ti_attrname != NULL) {
+                        for (i = 0; defattrs[i] != NULL; ++i) {
+                            if (strcasecmp(colp->ti_attrname, defattrs[i])
+                                    == 0) {
+                                break;
+                            }
+                        }
+                        if (defattrs[i] != NULL) {
+                            vals = defvals[i];
+                        }
+                    }
+#endif
+                } else {
+                    freevals = 1;
+                    if (LDAP_IS_TMPLITEM_OPTION_SET(colp,
+                            LDAP_DITEM_OPT_SORTVALUES) && vals[0] != NULL
+                            && vals[1] != NULL) {
+                        ldap_sort_values(ld, vals, ldap_sort_strcasecmp);
+                    }
+                }
+
+                show = form || addform || (vals != NULL && vals[0] != NULL);
+
+                /* don't print empty rows or so for the following cases */
+                if ((!(addform || form)) && show 
+                    && LDAP_GET_SYN_TYPE(colp->ti_syntaxid) == LDAP_SYN_TYPE_BOOLEAN
+                    && LDAP_IS_TMPLITEM_OPTION_SET(colp, LDAP_DITEM_OPT_HIDEIFFALSE) 
+                    && (vals != NULL && vals[0] != NULL 
+                    &&  toupper(vals[0][0]) != 'T')) {
+
+                    /* hide boolean attr if false */
+                    show = 0;
+                }
+                if (form && (! vals &&
+                    LDAP_IS_TMPLITEM_OPTION_SET(colp,LDAP_DITEM_OPT_READONLY)))
+                    /* don't show: form and no value and read only */
+                    show = 0;
+                if ((form || addform) &&
+                    (colp->ti_syntaxid == LDAP_SYN_SEARCHACTION ||
+                     colp->ti_syntaxid == LDAP_SYN_LINKACTION))
+                     /* don't show: form and actions */
+                    show = 0;
+
+                if (! (form || addform || vcard)) {
+                    /* no link or search in a form or vcard */
+                    if (colp->ti_syntaxid == LDAP_SYN_SEARCHACTION) {
+                        /* search action */
+                        if ((opts & LDAP_DISP_OPT_DOSEARCHACTIONS) != 0) {
+                            if (colp->ti_attrname == NULL || 
+                                (show && toupper(vals[0][0]) == 'T')) {
+                                fputs(list ? "</DL>" : 
+                                   (table ?  "</TABLE>" : ((*dn) ?  "<P>" : "")),
+                                      fp);
+                                fflush(fp);
+                                err = searchaction(ld, r, resp, entry, colp);
+                                in_table = in_dl = 0;
+                            }
+                        }
+                        show = 0;
+                        label_buf[0] = '\0';
+                        value_buf[0] = '\0';
+                    } else if (colp->ti_syntaxid == LDAP_SYN_LINKACTION) {
+                        /* link action */
+                        if (colp->ti_args && colp->ti_args[0]) {
+                            if (colp->ti_args[0][0] == '?') {
+                                /* full flags/search specified */
+                                strcpy(filter, colp->ti_args[0]);
+                            } else {
+                                sprintf(filter, "?%s", colp->ti_args[0]);
+                            }
+                        } else {
+                            filter[0] = '\0';
+                        }
+                        f_label = friendly_label(resp, colp->ti_label);
+                        msg_snprintf(label_buf+strlen(label_buf),
+                            sizeof(label_buf) - strlen(label_buf),
+                            MSG_LINKACTION, "ss",
+                            dn2url(r, dn, FLAG_LANGUAGE, 0, filter, NULL), 
+                            f_label);
+                        show = 0;
+                    }
+                }
+                if (show) {
+                    err = web500gw_vals2html(ld, r, resp, dn, vals, 
+                            colp->ti_label, colp->ti_syntaxid, colp);
+                }
+                if (freevals) {
+                    ldap_value_free(vals);
+                }
+            }
+            if (show != 0 || (*label_buf != '\0' || *value_buf != '\0'))
+                print_out(r, resp);
+            /* end of a line */
+        }
     }
-
-    if (ber != NULL) {
-      ber_free(ber, 1);
-    }
-
     if (vcard) {
         fprintf(fp, "PRODID:%s\nEND:vCard\n", version);
     } else {

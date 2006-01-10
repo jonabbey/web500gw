@@ -54,10 +54,10 @@ VERSION = 3.3
 
 # T.61 <-> ISO-8859-1 translation: This is built in from LDAP 3.2.
 # If you didn't define this translation there comment out the following line:
-STR_TRANSLATION = -DSTR_TRANSLATION
+#STR_TRANSLATION = -DSTR_TRANSLATION
 # If you defined LDAP_DEBUG there and want to enable LDAP debugging
 # uncomment the following line:
-#LDAP_DEBUG = -DLDAP_DEBUG
+LDAP_DEBUG = -DLDAP_DEBUG
 
 #################
 ## If you have LDAP from an ISODE Consortium Release
@@ -104,7 +104,7 @@ CC	= gcc
 #WARN = -Wall -Wno-implicit
 #CFLAGS	= -O4 $(WARN) $(ALLDEFINES) -fpcc-struct-return -fwritable-strings
 #CFLAGS	= -g $(WARN) $(ALLDEFINES) -fpcc-struct-return -fwritable-strings
-CFLAGS = -g $(WARN) $(ALLDEFINES)
+CFLAGS	= -g $(WARN) $(ALLDEFINES)
 
 # or cc:
 #CC	= cc
@@ -122,12 +122,12 @@ MKDIR   = mkdir
 
 LIBS	= $(LDAPLIBS) $(KRBLIBFLAG) $(KRBLIBS) $(LIBEFENCE)
 
-SRCS	=	web500gw.c filters.c read.c search.c bind.c modify.c add.c delete.c modrdn.c\
+SRCS	=   web500gw.c read.c search.c bind.c modify.c add.c delete.c modrdn.c\
             navigation.c util.c web_util.c dir_util.c ldap2html.c init.c \
-            config.c detach.c setproctitle.c
-OBJS	= 	web500gw.o filters.o read.o search.o bind.o modify.o add.o delete.o modrdn.o \
+            config.c detach.c setproctitle.c friendly.c disptmpl.c getfilter.c ldap_compat.c dsparse.c free.c
+OBJS	=   web500gw.o read.o search.o bind.o modify.o add.o delete.o modrdn.o \
             navigation.o util.o web_util.o dir_util.o ldap2html.o messages.o \
-            init.o config.o detach.o setproctitle.o gwversion.o
+            init.o config.o detach.o setproctitle.o gwversion.o friendly.o disptmpl.o getfilter.o ldap_compat.o dsparse.o free.o
 
 all:	web500gw
 	@echo "Compilation ready, now need a 'make install' (maybe as root)"

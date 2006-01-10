@@ -131,7 +131,7 @@ do_modrdn(
 #endif
         msg_fprintf(fp, MSG_MODRDN_ERROR, "ssssiss",oldrdn, oldufn, newrdn, newufn,
             rc, web500gw_err2string(rc, resp), 
-            web500gw_err2string(r->r_ld->ld_errno, resp));
+            web500gw_err2string(get_ldap_result_code(r->r_ld), resp));
         fputs(MSG_HTML_END, fp);
         fputs("\n", fp);
         

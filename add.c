@@ -115,7 +115,7 @@ do_addform(
     if ((rc = ldap_search_st(r->r_ld, basedn, LDAP_SCOPE_BASE, default_filter,
         NULL, 0, &timeout, &res)) != LDAP_SUCCESS) {
         /* better error description here ??? */
-        do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
+        do_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
         return NOTOK;
     }
     /* check if nonleaf here ??? */
@@ -516,7 +516,7 @@ do_add(
 #endif
         msg_fprintf(fp, MSG_ADD_ERROR, "ssiss", rdn, ufn, rc,
             web500gw_err2string(rc, resp), 
-            web500gw_err2string(r->r_ld->ld_errno, resp));
+            web500gw_err2string(get_ldap_result_code(r->r_ld), resp));
         fputs(MSG_HTML_END, fp);
         fputs("\n", fp);
         

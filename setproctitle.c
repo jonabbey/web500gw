@@ -13,6 +13,8 @@
  * $Id: setproctitle.c,v 1.3 2001/05/01 09:35:13 dekarl Exp $
  */
 
+#include "web500gw.h"
+
 char	**Argv;		/* pointer to original (main's) argv */
 int	Argc;		/* original argc */
 

@@ -22,16 +22,15 @@ do_search(
     RESPONSE        *resp
 )
 {
-  // XARL    char            *filtertype, **search_attrs, *search_filter;
-    char            **search_attrs, *search_filter;
+    char            *filtertype, **search_attrs, *search_filter;
     char            *print_filter, *human_filter;
     int             scope, count = 0, rc, i = 0, j, in_home;
     struct timeval  timeout;
-    // XARL    LDAPFiltInfo    *fi;
+    LDAPFiltInfo    *fi;
     LDAPMessage     *e, *res;
     static char     *def_attrs[] = 
                 {"objectClass", "sn", "aliasedObjectName", "labeledURI", 0};
-    // XARL    struct ldap_disptmpl    *tmpl;
+    struct ldap_disptmpl    *tmpl;
     char    **oc;
     char    *result_dn, *doc, *foc, *url_dn;
     char    *base_dn, *base_ufn, *result_ufn, *alias_ufn, *sortstring, *cp, *bp;
@@ -66,17 +65,11 @@ do_search(
         return NOTOK;
     }
     print_filter = r->r_filter;
-
-    /* XARL we're setting search_filter here to a human-friendly
-       search operand that came from our request's r_filter
-       argument. */
-
 #if defined(OWN_STR_TRANSLATION)
     search_filter = strdup(web500gw_isotot61(r->r_filter));
 #else
     search_filter = r->r_filter;
 #endif
-
     if (*search_filter == '\0' || *(search_filter+1) != '=') {
         scope = LDAP_SCOPE_ONELEVEL;
     } else {
@@ -122,54 +115,45 @@ do_search(
 
     if ((in_home = isinhome(base_dn)))
         /* ACCESS sizelimit if searching below HOME DN */
-      ldap_set_option(r->r_ld, LDAP_OPT_SIZELIMIT, &(r->r_access->a_sizelimit));
+        ldap_set_option(r->r_ld, LDAP_OPT_SIZELIMIT, &(r->r_access->a_sizelimit));
     else
-      ldap_set_option(r->r_ld, LDAP_OPT_SIZELIMIT, &sizelimit);
-    
+        ldap_set_option(r->r_ld, LDAP_OPT_SIZELIMIT, &sizelimit);
+
     /* A simple filter (not starting with '(') with a comma in it 
      *  -> UFN assumed */
-    if (ufnsearch && search_filter[0] != '(' && 
-        strchr(search_filter, ',') != NULL && strlen(search_filter) > 3)
-      {
-        if (strlen(base_dn) > 0)
-	  {
-	    ldap_ufn_setprefix(r->r_ld, base_dn);
-	  }
 
+    /*    if (ufnsearch && search_filter[0] != '(' && 
+        strchr(search_filter, ',') != NULL && strlen(search_filter) > 3) {
+        if (strlen(base_dn) > 0)
+            ldap_ufn_setprefix(r->r_ld, base_dn);
         timeout.tv_sec = timelimit;
         timeout.tv_usec = 0;
         ldap_ufn_timeout((void *) &timeout);
 	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_FINDING);
-	
 #ifdef WEB500GW_DEBUG
         Web500gw_debug(WEB500GW_DEBUG_TRACE, "ldap_ufn_search_s (%s)\n", 
-		       search_filter, 0, 0, 0);
+            search_filter, 0, 0, 0);
 #endif
         if ((rc = ldap_ufn_search_s(r->r_ld, search_filter, search_attrs, 0, &res))
-            != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED)
-	  {
-	    do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
+            != LDAP_SUCCESS && rc != LDAP_SIZELIMIT_EXCEEDED) {
+            do_error(r, resp, rc, 0, get_ldap_result_code(r->r_ld), get_ldap_matched_str(r->r_ld));
             return NOTOK;
-	  }
-
+        }
         count = ldap_count_entries(r->r_ld, res);
 #ifdef WEB500GW_DEBUG
         Web500gw_debug(WEB500GW_DEBUG_TRACE, "UFN ready: %d results!\n",
-		       count, 0, 0, 0);
+            count, 0, 0, 0);
 #endif
-        /* Reset DN, because this UFN search was probably not below DN */
+        // Reset DN, because this UFN search was probably not below DN
         base_dn = base_ufn = "";
         in_home = 0;
 
         friendlyDesc = MSG_UFN;
 
-      }
-    else
-      {
+	} else { */
         /* let's do the search */
-	/*        filtertype = (scope == LDAP_SCOPE_ONELEVEL ? "web500gw onelevel" :
-		  "web500gw subtree");*/
-
+        filtertype = (scope == LDAP_SCOPE_ONELEVEL ? "web500gw onelevel" :
+            "web500gw subtree");
 	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, 
 			(void *) (scope == LDAP_SCOPE_ONELEVEL ? LDAP_DEREF_FINDING : LDAP_DEREF_ALWAYS));
         timeout.tv_sec = timelimit;
@@ -178,111 +162,38 @@ do_search(
         friendlyDesc = NULL;
 
         /* try all filters til we have success */
-
-	/* What we're doing here is looking for filters in our
-	   ldapfilter.conf file that match both the filtertype
-	   ("web500gw onelevel" or "web500gw subtree") and the value
-	   (i.e., that contained in search_filter).  The value in
-	   search_filter is matched against a set of regular
-	   expressions in the ldapfilter.conf file, one per call to
-	   ldap_getfirstfilter() and ldap_getnextfilter().
-
-	   'search_filter' derives directly from the input provided by
-	   the user to the web500gw web form, and is human-generated.
-	   Typical values for search_filter might include "Jonathan
-	   Abbey", "835-3199", or "D. Scott".  Based on the format of
-	   the string provided, different filter definitions from
-	   ldapfilter.conf may match, and thus be searched on.
-
-	   r->r_access->a_filtd is a LDAPFiltDesc pointer, which
-	   actually isn't valid without having access to the old
-	   OpenLDAP/umich filter APIs 
-
-	   The filter that is returned is supposed to have the value
-	   in 'search_filter' substituted into a properly formed LDAP
-	   query.  Things like "first initial and last name" searches
-	   are automatically constructed in accordance with the text
-	   string recognizers in ldapfilter.conf that examine
-	   search_filter.
-
-	   Since we're having to eliminate all dependence on the ldap
-	   filter operations, we'll have to come up with something
-	   else to handle these searches reasonably.. possibly by
-	   hard-wiring the searches we expect to need into this C
-	   file.
-
-	   Note that this loop has a second purpose.. it will go
-	   through and try as many filters are defined as it can
-	   match, attempting to probe the LDAP server with the
-	   successive search types, to the extent of matching against
-	   different sets of standard LDAP attributes with each
-	   search.  A lot of the utility of the multiple search
-	   patterns should be achievable by crafting an appropriately
-	   loose disjunctive, fixed, search pattern, I think.  */
-
-	if ((rc = ldap_search_st(r->r_ld, base_dn, scope, fi->lfi_filter,
-				 search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS && 
-	    rc != LDAP_SIZELIMIT_EXCEEDED && rc != LDAP_INSUFFICIENT_ACCESS 
-	    && rc != LDAP_TIMELIMIT_EXCEEDED && rc != LDAP_TIMEOUT
-	    && rc != LDAP_PARTIAL_RESULTS)
-	  {
-	    do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
-	    return NOTOK;
-	  }
-
-	if ((count = ldap_count_entries(r->r_ld, res)) > 0)
-	  {
-	    /* found something */
-	    friendlyDesc = friendly_label(resp, fi->lfi_desc);
-#ifdef WEB500GW_DEBUG
-	    Web500gw_debug(WEB500GW_DEBUG_FILTER, 
-			   " searched ... and found %d results!\n", count, 0, 0, 0);
-#endif
-	    break;
-	  }
-
-	/*
         for (fi = ldap_getfirstfilter(r->r_access->a_filtd, filtertype, search_filter);
-	     fi != NULL;
-	     fi = ldap_getnextfilter(r->r_access->a_filtd))
-	  {
+            fi != NULL; fi = ldap_getnextfilter(r->r_access->a_filtd)) {
 #ifdef WEB500GW_DEBUG
             Web500gw_debug(WEB500GW_DEBUG_FILTER, "  search %s: %s -- %s\n",
-			   scope == LDAP_SCOPE_ONELEVEL ? "onelevel" : "subtree",
-			   fi->lfi_filter, fi->lfi_desc, 0);
+                scope == LDAP_SCOPE_ONELEVEL ? "onelevel" : "subtree",
+                fi->lfi_filter, fi->lfi_desc, 0);
 #endif
             if ((rc = ldap_search_st(r->r_ld, base_dn, scope, fi->lfi_filter,
-				     search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS && 
+                search_attrs, 0, &timeout, &res)) != LDAP_SUCCESS && 
                 rc != LDAP_SIZELIMIT_EXCEEDED && rc != LDAP_INSUFFICIENT_ACCESS 
                 && rc != LDAP_TIMELIMIT_EXCEEDED && rc != LDAP_TIMEOUT
-                && rc != LDAP_PARTIAL_RESULTS)
-	      {
-		do_ldap_error(r, resp, rc, 0, get_ldap_error_str(r->r_ld), get_ldap_matched_str(r->r_ld));
+                && rc != LDAP_PARTIAL_RESULTS) {
+                do_error(r, resp, rc, 0, get_ldap_result_code(r->r_ld), get_ldap_matched_str(r->r_ld));
                 return NOTOK;
-	      }
-
-            if ((count = ldap_count_entries(r->r_ld, res)) > 0)
-	      {
-                // found something
+            }
+            if ((count = ldap_count_entries(r->r_ld, res)) > 0) {
+                /* found something */
                 friendlyDesc = friendly_label(resp, fi->lfi_desc);
 #ifdef WEB500GW_DEBUG
                 Web500gw_debug(WEB500GW_DEBUG_FILTER, 
-			       " searched ... and found %d results!\n", count, 0, 0, 0);
+                    " searched ... and found %d results!\n", count, 0, 0, 0);
 #endif
                 break;
-	      }
-
+            }
 #ifdef WEB500GW_DEBUG
             Web500gw_debug(WEB500GW_DEBUG_FILTER, 
-			   " searched ... and found no results!\n", 0, 0, 0, 0);
+                " searched ... and found no results!\n", 0, 0, 0, 0);
 #endif
-	  }
-
-	*/
-
+        }
 	ldap_set_option(r->r_ld, LDAP_OPT_DEREF, (void *)LDAP_DEREF_ALWAYS);
-      }
-    
+	/* }*/
+
     if (count < 1) {        /* nothing found :-( */
         if (r->r_flags & FLAG_SEARCHACT) {
             /* in a search action we silently ignore this */
@@ -433,17 +344,13 @@ do_search(
         (!(r->r_flags & FLAG_ENTRYONLY))) {
         /* Not the default filter and not entryonly */
 
-        msg_fprintf(fp,
-		    MSG_SEARCH_RESULTS,
-		    "ssssisss",
-		    (scope == LDAP_SCOPE_ONELEVEL ?  MSG_ONELEVEL : MSG_SUBTREE),
-		    print_filter,
-		    human_filter, 
-		    base_ufn && *base_ufn ? base_ufn : MSG_ROOT,
-		    count,
-		    count == 1 ? MSG_ENTRY : MSG_ENTRIES,
-		    friendlyDesc,
-		    rc == LDAP_PARTIAL_RESULTS ? resp->resp_language->l_conf->c_errmsg[LDAP_PARTIAL_RESULTS] : "");
+        msg_fprintf(fp, MSG_SEARCH_RESULTS, "ssssisss",
+            (scope == LDAP_SCOPE_ONELEVEL ?  MSG_ONELEVEL : MSG_SUBTREE),
+            print_filter, human_filter, 
+            base_ufn && *base_ufn ? base_ufn : MSG_ROOT,
+            count, count == 1 ? MSG_ENTRY : MSG_ENTRIES, friendlyDesc,
+            rc == LDAP_PARTIAL_RESULTS ?
+            resp->resp_language->l_conf->c_errmsg[LDAP_PARTIAL_RESULTS] : "");
     }
     if (ldap_result2error(r->r_ld, res, 0) == LDAP_SIZELIMIT_EXCEEDED) {
         fprintf(fp, r->r_flags & FLAG_FILTER && r->r_access->a_sizelimit == 0 ? 
@@ -618,10 +525,6 @@ do_search(
             strcat(temp, *sn);
         }
         strcat(temp, sortstring);
-
-	/* we never free dncompare structs created here, as we'll
-	   re-use them over the course of the server's runtime. */
-
         if (!dnlist[counter]) {
             dnlist[counter] = (struct dncompare *) malloc(sizeof(struct dncompare));
         }
@@ -765,110 +668,21 @@ process_search_form (
         if ((cp = strchr(cp, '&')))
             *cp++ = '\0';
         if (strncasecmp(lp, "filtertemplate=", 15) == 0) {
-            /* a search filter template 
-
-	       XARL
-
-               This field is set to a constant in the HTML file we use
-               at ARL.. filtertemplate is set to:
-
-	       (&(objectclass=%v1)(%v2))
-
-	       Which is just a way of encoding both the object class
-	       to search on and the specific search terms specified by a subsequent
-	       substitution of a filter term.
-
-	       XXX I'm not sure why the hex_qdecode function doesn't
-	       attempt to do hex decoding of 'v1' and 'v2', since they
-	       are prefixed by %.. it would appear that %v1 would
-	       translate into a ctrl-A (hex 0x01), and %v2 would be
-	       translated into ctrl-B (hex 0x02).. XXX
-
-	       If this is the case, I'm not sure how the
-	       filtertemplate could be processed properly downstream.
-
-	       I suppose this means that special characters (including
-	       the % in the above filter string) must be hex encoded
-	       by the web browser or web server so that the %v1 and
-	       %v2 are not corrupted.
-
-	    */
+            /* a search filter template */
             filtertemplate = hex_qdecode(lp + 15);
         } else if (oc == NULL && strncasecmp(lp, "objectclass=", 12) == 0) {
-            /* objectClass
-
-	       XARL
-
-	       This field is mixed into the filtertemplate pattern in order
-	       to constrain the search performed by objectClass.
-	    */
+            /* objectClass */
             oc = hex_qdecode(lp + 12);
         } else if (strncasecmp(lp, "searchattr=", 11) == 0) {
-            /* attribute to search for
-
-	       XARL
-
-	       As used at ARL, this field will contain one of the
-	       following:
-
-	         cn			(Name)
-	         givenName		(First Name)
-	         sn			(Surname)
-	         mail			(E-Mail)
-	         roomNumber		(Room)
-	         departmentNumber	(Department)
-	         title			(Title)
-
-		 searchattr is used by the no longer present
-		 ldap_build_filter() API call to create a search on
-		 the specified LDAP attribute.
-	    */
+            /* attribute to search for */
             searchattr = hex_qdecode(lp + 11);
         } else if (strncasecmp(lp, "match=", 6) == 0) {
-            /* search method.
-
-	       XARL
-
-	       This comes from the HTML form that drives us, and
-	       corresponded to a filter pattern such as one of the
-	       following:
-
-	       %a=*%v*
-	       ! (%a=*%v*)
-	       %a=%v*
-               %a~=%v
-               $a=$v
-
-	       which correspond to:
-
-	       contains:
-	       doesn't contain:
-	       begins with:
-	       sounds like:
-	       is: */
+            /* search method */
             match = hex_qdecode(lp + 6);
         } else if (query == NULL && strncasecmp(lp, "query=", 6) == 0) {
-	  /*
-	    XARL
-
-	    The search operand that the user keys into the web page.
-	    Generally will be someone's name or department or so
-	    forth.
-
-	  */
             query = hex_qdecode(lp + 6);
         } else if (strncasecmp(lp, "base=", 5) == 0) {
-	  /* XARL
-
-	     In the HTML form we are using to dispatch into the
-	     web500gw, we have an option that sets 'args' to
-
-	     'o=ARL:UT, c=US&endargs' 
-
-	     The &endargs is necessary to end the internal parsing of
-	     the args option.
-	  */
-             r->r_dn = hex_qdecode(lp + 5);
+            r->r_dn = hex_qdecode(lp + 5);
         } else if (strncasecmp(lp, "ldapserver=", 11) == 0) {
             server = hex_qdecode(lp + 11);
         } else if (strncasecmp(lp, "ldapport=", 9) == 0) {
@@ -878,15 +692,6 @@ process_search_form (
             ap = hex_qdecode(lp + 5);
             np = cp;
             cp = lp = ap;
-
-	    /* XARL
-
-	       By setting cp here, we let the check at the top of this
-	       loop find the & character prefixing &endargs, which
-	       will be replaced with a null ascii character to
-	       terminate the args string.
-
-	    */
             continue;
         } else if (strncasecmp(lp, "endargs", 7) == 0) {
             cp = np;        /* go further */
@@ -943,17 +748,6 @@ process_search_form (
       "process_search_form: query = %s, searchattr = %s, objectclass = %s\n",
       query ? query : "", searchattr ? searchattr : "", oc ? oc : "", 0);
 #endif
-
-    /*
-      XARL
-
-      Here is where we craft the query filter that we will apply in
-      the search process.  match is an old-school (no longer
-      supported) LDAP filter string such as '%a=*%v*', query is the
-      operand to search on, and searchattr is an LDAP attribute name
-      to perform the query on.
-    */
-
     len = strlen(match) + strlen(query) + strlen(searchattr);
     matchquery = calloc(1, len);
     ldap_build_filter(matchquery, len, match, NULL, NULL,
@@ -962,14 +756,6 @@ process_search_form (
     valwords[1] = matchquery;
     ldap_build_filter(buf, sizeof(buf), filtertemplate, "S=", NULL,
         searchattr, NULL, valwords);
-
-    /*
-      XARL
-
-      buf should now contains a native LDAP search expression (RFC
-      2254 compliant) which searches searchattr for query on oc
-      (objectclass), under the search base set in the args.
-    */
 
 #ifdef WEB500GW_DEBUG
     Web500gw_debug(WEB500GW_DEBUG_PARSE,

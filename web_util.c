@@ -380,10 +380,7 @@ html_encode (unsigned char *in)
     Web500gw_debug(WEB500GW_DEBUG_UTIL, "  html_encode (%s)\n", in, 0, 0, 0);
 #endif
 
-    /* worst case: all encoded */
-
-    out = buffer = malloc(6 * strlen((char *)in) + 1); /* *leak* unless freed */
-
+    out = buffer = malloc(6 * strlen((char *)in) + 1);   /* worst case: all encoded */
 
     while (*in) {
         if (*in > 0x80 || *in == '"' || *in == '\'' || *in == '&' ||
@@ -424,7 +421,7 @@ string_encode (unsigned char *in)
         /* No ' nor " in string */
         return((char *)in);
 
-    out = buffer = malloc(6 * strlen((char *)in) + 1); /* *leak* unless freed */
+    out = buffer = malloc(6 * strlen((char *)in) + 1);
         /* worst case: all encoded */
 
     while (*in) {
