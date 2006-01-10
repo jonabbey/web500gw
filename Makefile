@@ -6,14 +6,14 @@
 #
 
 # Where to install web500gw
-INSTDIR = /usr/local/etc
+INSTDIR = /VOLUMES/web500gw/web500gw
 
 # Where to install the manual web500gw.8
-MANDIR	= /usr/local/man/man8
+MANDIR	= /VOLUMES/web500gw/web500gw/man/man8
 
 # Where to install web500gw's config/filter/template/help/message files
 # It's recommended to use an own directory for it.
-WEB500GWDIR	= $(INSTDIR)/web500
+WEB500GWDIR	= $(INSTDIR)/etc
 
 # What language dependent files should be installed? 
 # "" stands for english (default) versions
