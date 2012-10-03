@@ -24,6 +24,8 @@
 #ifndef _LDAP_COMPAT_H
 #define _LDAP_COMPAT_H
 
+#define LDAP_DEPRECATED 1
+
 #include <ldap.h>
 #include <string.h>
 
