@@ -1,3 +1,7 @@
+Version 2.2rc1 (03.10.2012)
+ * Various changes to support compilation and use with modern releases of OpenLDAP
+   Jonathan Abbey <jonabbey@arlut.utexas.edu>
+
 Version 2.1rc1 (03.07.2001)
  * bug fix - added correct parsing of 2 AND 4 digit years in results
    from LDAP queries
