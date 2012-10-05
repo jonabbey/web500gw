@@ -1,1 +1,6 @@
 *.o
+gwversion.c
+web500gw
+msg-tmp
+messages.c
+messages.h
