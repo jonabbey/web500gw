@@ -154,12 +154,12 @@ do_addform(
     if (r->r_browser->b_opts & B_HIDDEN) {
         fprintf(fp, "<INPUT TYPE=\"hidden\" NAME=\"adder_dn\" VALUE=\"%s\">\n\
 <INPUT TYPE=\"hidden\" NAME=\"adder_pw\" VALUE=\"%s\">\n",
-            html_encode(bind_as), html_encode(pw));
+	      html_encode(bind_as, strlen(bind_as)), html_encode(pw, strlen(pw)));
 
     } else {
         fprintf(fp, "<INPUT TYPE=\"radio\" NAME=\"adder_dn\" VALUE=\"%s\" CHECKED>\n\
 <INPUT TYPE=\"radio\" NAME=\"adder_pw\" VALUE=\"%s\" CHECKED>\n",
-            html_encode(bind_as), html_encode(pw));
+	      html_encode(bind_as, strlen(bind_as)), html_encode(pw, strlen(pw)));
     }
 
     free(rdn);

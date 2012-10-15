@@ -132,7 +132,7 @@ do_bind(
         /* No auth DNs found, use baseDN itself in an input field */
         auth_form = calloc(max, sizeof(char));
         sprintf(auth_form, "<INPUT SIZE=\"%d\" NAME=\"dn\" VALUE=\"%s\">\n",
-                    strlen(dn) + 3, html_encode(dn));
+		strlen(dn) + 3, html_encode(dn, strlen(dn)));
     } else {
         cp = auth_form = calloc(max, sizeof(char));
         j = 0;
@@ -143,7 +143,7 @@ do_bind(
                 max += BUFSIZ;
                 auth_form = realloc(auth_form, max);
             }
-            s = html_encode(binddns[j]);
+            s = html_encode(binddns[j], strlen(binddns[j]));
             sprintf(cp, "<OPTION VALUE=\"%s\">%s\n", s, s);
             free(s);
             j++;

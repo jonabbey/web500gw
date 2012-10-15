@@ -133,25 +133,25 @@ dn2url(
         flagstring = calloc(BUFSIZ, sizeof(char));
         if (flags) {
             s = flag2string(flags);
-            strcat(flagstring, s); 
+            strncat(flagstring, s, BUFSIZ - strlen(flagstring) - 1); 
         }
         if (flags & FLAG_LANGUAGE && r->r_language) {
             if (*flagstring)
                 strcat(flagstring, ",");
-            strcat(flagstring, "lang=");
-            strcat(flagstring, r->r_language);
+            strncat(flagstring, "lang=", BUFSIZ - strlen(flagstring) - 1);
+            strncat(flagstring, r->r_language, BUFSIZ - strlen(flagstring) - 1);
         }
         if (flags & FLAG_TMPL && r->r_template) {
             if (*flagstring)
-                strcat(flagstring, ",");
-            strcat(flagstring, "tmpl=");
-            strcat(flagstring, r->r_template);
+	      strncat(flagstring, ",", BUFSIZ - strlen(flagstring) - 1);
+            strncat(flagstring, "tmpl=", BUFSIZ - strlen(flagstring) - 1);
+            strncat(flagstring, r->r_template, BUFSIZ - strlen(flagstring) - 1);
         }
         if (actions) {
             s = actions2string(actions);
             if (*flagstring)
-                strcat(flagstring, ",");
-            strcat(flagstring, s);
+	      strncat(flagstring, ",", BUFSIZ - strlen(flagstring) - 1);
+            strncat(flagstring, s, BUFSIZ - strlen(flagstring) - 1);
         }
         flaglen = strlen(flagstring);
     }
@@ -372,7 +372,7 @@ hex_qdecode (char *in)
  *               allocates mem */
 
 char *
-html_encode (unsigned char *in)
+html_encode (unsigned char *in, int len)
 {
     char *out, *buffer;
 
@@ -380,9 +380,13 @@ html_encode (unsigned char *in)
     Web500gw_debug(WEB500GW_DEBUG_UTIL, "  html_encode (%s)\n", in, 0, 0, 0);
 #endif
 
-    out = buffer = malloc(6 * strlen((char *)in) + 1);   /* worst case: all encoded */
+    int i;
+    int length = 6 * len + 1;   /* worst case: all encoded */
 
-    while (*in) {
+    out = buffer = malloc(length);
+
+    for (i = 0; i < len; i++)
+      {
         if (*in > 0x80 || *in == '"' || *in == '\'' || *in == '&' ||
             *in == '<' || *in == '>') {
             *out++ = '&';
@@ -392,10 +396,12 @@ html_encode (unsigned char *in)
             *out++ = ((*in % 100) % 10) + '0';
             *out++ = ';';
             in++;
+	    i++;
         } else {
            *out++ = *in++;
         }
-    }
+      }
+
     *out = '\0';
 #ifdef WEB500GW_DEBUG
     Web500gw_debug(WEB500GW_DEBUG_UTIL, "  html_encode >%s<\n", buffer, 0, 0, 0);

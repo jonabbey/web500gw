@@ -171,12 +171,12 @@ do_form(
     if (r->r_browser->b_opts & B_HIDDEN) {
         fprintf(fp, "<INPUT TYPE=\"hidden\" NAME=\"dn\" VALUE=\"%s\">\n\
 <INPUT TYPE=\"hidden\" NAME=\"pw\" VALUE=\"%s\">\n",
-            html_encode(bind_as), html_encode(pw));
+		html_encode(bind_as, strlen(bind_as)), html_encode(pw, strlen(pw)));
 
     } else {
         fprintf(fp, "<INPUT TYPE=\"radio\" NAME=\"dn\" VALUE=\"%s\" CHECKED>\n\
 <INPUT TYPE=\"radio\" NAME=\"pw\" VALUE=\"%s\" CHECKED>\n",
-            html_encode(bind_as), html_encode(pw));
+		html_encode(bind_as, strlen(bind_as)), html_encode(pw, strlen(pw)));
     }
 
 
@@ -518,9 +518,9 @@ do_modify(
         } else if ((vals = ldap_get_values(r->r_ld, e, attr)) != NULL) {
             /* compare new with old values */
             differs = 0;
-            ldap_sort_values(r->r_ld, vals, ldap_sort_strcasecmp);
-            ldap_sort_values(r->r_ld, user_attrs[i]->mod_values, 
-                    ldap_sort_strcasecmp);
+            /* ldap_sort_values(r->r_ld, vals, ldap_sort_strcasecmp); */
+            /* ldap_sort_values(r->r_ld, user_attrs[i]->mod_values,  */
+            /*         ldap_sort_strcasecmp); */
             for (j = 0; user_attrs[i]->mod_values[j] != NULL; j++) {
                 if (!vals[j] ||
                     strcmp(vals[j], user_attrs[i]->mod_values[j]) != 0) {
@@ -608,7 +608,7 @@ do_modify(
         friendly_label(resp, mod_attrs[i]->mod_type),
         change_pw ? "" : 
         mod_attrs[i]->mod_op == LDAP_MOD_DELETE ? "" :
-        html_encode(mod_attrs[i]->mod_values[0]),
+		    html_encode(mod_attrs[i]->mod_values[0], strlen(mod_attrs[i]->mod_values[0])),
         mod_attrs[i]->mod_op == LDAP_MOD_REPLACE ? MSG_REPLACED :
         mod_attrs[i]->mod_op == LDAP_MOD_DELETE  ? MSG_DELETED  :
         mod_attrs[i]->mod_op == LDAP_MOD_ADD     ? MSG_ADDED    : "UNKNOWN");
@@ -625,7 +625,7 @@ do_modify(
         dn2url(r, dn, FLAG_LANGUAGE|FLAG_NOCACHE, 0, NULL, NULL),
         dn2url(r, dn, FLAG_LANGUAGE|FLAG_TMPL, ACTION_FORM, 
         change_pw ? "userPassword" : NULL, NULL),  
-        html_encode(bind_as), html_encode(pw));
+	html_encode(bind_as, strlen(bind_as)), html_encode(pw, strlen(pw)));
     fputs(MSG_HTML_END, fp);
     fputs("\n", fp);
     free(ufn);
