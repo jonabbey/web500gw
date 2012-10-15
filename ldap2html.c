@@ -25,7 +25,7 @@ web500gw_entry2html(
     LDAPMessage             *entry,
     struct ldap_disptmpl    *tmpl,
     char                    **defattrs,
-    char                    ***defvals,
+    BerValue                ***defvals,
     unsigned long           opts
 )
 {
@@ -33,7 +33,8 @@ web500gw_entry2html(
     int     freevals;
     int     oneline, form, addform, list, search, table, valsonly, vcard;
     int     in_table = 0, in_dl = 0;
-    char    *dn, *f_label, **vals, filter[BUFSIZ];
+    char    *dn, *f_label, filter[BUFSIZ];
+    BerValue **vals;
     struct ldap_tmplitem    *rowp, *colp;
     struct ldap_adddeflist  *defaults;
 
@@ -109,7 +110,7 @@ web500gw_entry2html(
  */
             label_buf[0] = '\0';
             value_buf[0] = '\0';
-            if ((vals = ldap_get_values(ld, entry, attr)) == NULL) {
+            if ((vals = ldap_get_values_len(ld, entry, attr)) == NULL) {
                 freevals = 0;
 #ifdef nodef
                 if (defattrs != NULL) {
@@ -134,7 +135,7 @@ web500gw_entry2html(
             err = web500gw_vals2html(ld, r, resp, dn, vals, attr,
                     LDAP_SYN_CASEIGNORESTR, 0, NULL);
             if (freevals) {
-                ldap_value_free(vals);
+                ldap_value_free_len(vals);
             }
             print_out(r, resp);
             fflush(fp);
@@ -204,12 +205,14 @@ web500gw_entry2html(
                             if (strcasecmp(colp->ti_attrname,
                                         defaults->ad_attrname) == 0) {
                                 if (!vals)
-                                    vals = (char **)calloc(BUFSIZ, sizeof(char *));
+                                    vals = (BerValue **)calloc(BUFSIZ, sizeof(BerValue *));
     
                                 if (defaults->ad_source == LDAP_ADSRC_CONSTANTVALUE) {
-                                    vals[i++] = defaults->ad_value;
+				    vals[i]->bv_len = strlen(defaults->ad_value);
+                                    vals[i++]->bv_val = defaults->ad_value;
                                 } else if (defaults->ad_source == LDAP_ADSRC_ADDERSDN) {
-                                    vals[i++] = r->r_binddn;
+				    vals[i]->bv_len = strlen(r->r_binddn);
+				    vals[i++]->bv_val = r->r_binddn;
                                 }
                             }
                         }
@@ -217,7 +220,7 @@ web500gw_entry2html(
                             vals[i] = NULL;
                     }
                 } else if (colp->ti_attrname == NULL || 
-                    (vals = ldap_get_values(ld, entry, colp->ti_attrname)) == NULL) {
+                    (vals = ldap_get_values_len(ld, entry, colp->ti_attrname)) == NULL) {
 #ifdef nodef
                     if (!LDAP_IS_TMPLITEM_OPTION_SET(colp,
                             LDAP_DITEM_OPT_HIDEIFEMPTY) && defattrs != NULL
@@ -235,11 +238,11 @@ web500gw_entry2html(
 #endif
                 } else {
                     freevals = 1;
-                    if (LDAP_IS_TMPLITEM_OPTION_SET(colp,
-                            LDAP_DITEM_OPT_SORTVALUES) && vals[0] != NULL
-                            && vals[1] != NULL) {
-                        ldap_sort_values(ld, vals, ldap_sort_strcasecmp);
-                    }
+                    /* if (LDAP_IS_TMPLITEM_OPTION_SET(colp, */
+                    /*         LDAP_DITEM_OPT_SORTVALUES) && vals[0] != NULL */
+                    /*         && vals[1] != NULL) { */
+		    /*   ldap_sort_values(ld, vals, ldap_sort_strcasecmp); /\\* XXX deprecated *\\/ */
+                    /* } */
                 }
 
                 show = form || addform || (vals != NULL && vals[0] != NULL);
@@ -249,7 +252,7 @@ web500gw_entry2html(
                     && LDAP_GET_SYN_TYPE(colp->ti_syntaxid) == LDAP_SYN_TYPE_BOOLEAN
                     && LDAP_IS_TMPLITEM_OPTION_SET(colp, LDAP_DITEM_OPT_HIDEIFFALSE) 
                     && (vals != NULL && vals[0] != NULL 
-                    &&  toupper(vals[0][0]) != 'T')) {
+                    &&  toupper(vals[0]->bv_val[0]) != 'T')) {
 
                     /* hide boolean attr if false */
                     show = 0;
@@ -270,7 +273,7 @@ web500gw_entry2html(
                         /* search action */
                         if ((opts & LDAP_DISP_OPT_DOSEARCHACTIONS) != 0) {
                             if (colp->ti_attrname == NULL || 
-                                (show && toupper(vals[0][0]) == 'T')) {
+                                (show && toupper(vals[0]->bv_val[0]) == 'T')) {
                                 fputs(list ? "</DL>" : 
                                    (table ?  "</TABLE>" : ((*dn) ?  "<P>" : "")),
                                       fp);
@@ -308,7 +311,7 @@ web500gw_entry2html(
                             colp->ti_label, colp->ti_syntaxid, colp);
                 }
                 if (freevals) {
-                    ldap_value_free(vals);
+                    ldap_value_free_len(vals);
                 }
             }
             if (show != 0 || (*label_buf != '\0' || *value_buf != '\0'))
@@ -343,7 +346,8 @@ web500gw_list2html(
     struct ldap_tmplitem    *rowp, *colp, *tmplitem;
     int     list, oneline, search, table, valsonly, nodn;
     int     i, j, err, first, firstval, show;
-    char    *attr, *foc, *cp, **vals;
+    char    *attr, *foc, *cp;
+    BerValue **vals;
 
 #ifdef WEB500GW_DEBUG
     Web500gw_debug(WEB500GW_DEBUG_TRACE, "web500gw_list2html (%d, %d, %s)\n", 
@@ -490,7 +494,7 @@ web500gw_list2html(
                 value_buf[0] = '\0';
 
                 /* read value(s) for all attrs to show */
-                if ((vals = ldap_get_values(ld, dnlist[i]->entry, attr)) != NULL) {
+                if ((vals = ldap_get_values_len(ld, dnlist[i]->entry, attr)) != NULL) {
                     /* if there's a value look how to display */
                     tmplitem = NULLTMPLITEM;
                     for (rowp = ldap_first_tmplrow(tmpl);
@@ -661,7 +665,7 @@ web500gw_vals2html (
         REQUEST                 *r,
         RESPONSE                *resp,
         char                    *dn,
-        char                    **vals,
+        BerValue                **vals,
         char                    *label,
         unsigned long           syntaxid,
         struct ldap_tmplitem    *ti
@@ -671,6 +675,7 @@ web500gw_vals2html (
     int     maxlen = 0, urllen = 0, image = 0, freevals = 0, valcount;
     int     labellen = 0;
     int     oneline, form, addform, list, search, table, valsonly, vcard;
+    int     outval_len = 0;
     char    *p, *s, *t, *outval = NULL, buffer[BUFSIZ], *f_label;
 
 #ifdef WEB500GW_DEBUG
@@ -727,8 +732,10 @@ web500gw_vals2html (
 
         if (form) {
             for (i = 0; vals != NULL && vals[i] != NULL; ++i) {
-                if ((l = strlen(vals[i])) > maxlen)
-                    maxlen = l;
+	      l = vals[i]->bv_len;
+
+	      if (l > maxlen)
+		maxlen = l;
             }
             valcount = i;
             maxlen += 3;
@@ -740,9 +747,9 @@ web500gw_vals2html (
         }
     } else if (syntax != LDAP_SYN_TYPE_BUTTON && !(vcard && *label_buf)) {
         /* don't add additional attribute label in vcard */
-        strcat(label_buf, f_label);
+      strncat(label_buf, f_label, sizeof(label_buf) - strlen(label_buf) - 1);
     }
-    for (i = 0; vals != NULL && vals[i] != NULL; ++i) {
+    for (i = 0; vals != NULL && vals[i] != NULL && vals[i]->bv_len; ++i) {
         if (i > 0 && vcard && 
             LDAP_IS_TMPLITEM_OPTION_SET(ti, LDAP_DITEM_OPT_SINGLEVALUED)) {
             /* in vcard - if 1val - show only one value */
@@ -750,10 +757,12 @@ web500gw_vals2html (
         }
         if (syntax == LDAP_SYN_TYPE_TEXT) {
             if (vcard || syntaxid == LDAP_SYN_DN) {
-                outval = vals[i];
+	        outval_len = vals[i]->bv_len;
+                outval = vals[i]->bv_val;
                 freevals = 0;
             } else {
-                outval = html_encode(web500gw_t61toiso(vals[i]));
+	        outval = html_encode(web500gw_t61toiso(vals[i]->bv_val), vals[i]->bv_len);
+		outval_len = strlen(outval);
                 freevals = 1;
             }
         }
@@ -807,30 +816,33 @@ web500gw_vals2html (
                 while (isspace(*s)) ++s;
                 if (form) {
                     if (line++ > 0)         /* not first line */
-                        strcat(buffer, "\r\n");
-                    strcat(buffer, p);
+		      strncat(buffer, "\r\n", sizeof(buffer) - strlen(buffer) - 1);
+
+                    strncat(buffer, p, sizeof(buffer) - strlen(buffer) - 1);
                 } else {
                     if (line++ > 0)
-                        strcat(buffer, ((list || table) && !oneline) ? "<BR>\n" :
-                            (vcard ? ";" : ", "));
-                    strcat(buffer, p);
+                        strncat(buffer, ((list || table) && !oneline) ? "<BR>\n" :
+				(vcard ? ";" : ", "),
+				sizeof(buffer) - strlen(buffer) - 1);
+                    strncat(buffer, p, sizeof(buffer) - strlen(buffer) - 1);
                 }
                 p = s;
             }
             if (form || addform) {
                 if (line++ > 0)
-                    strcat(buffer, "\r\n");
-                strcat(buffer, p);
+		  strncat(buffer, "\r\n", sizeof(buffer) - strlen(buffer) - 1);
+                strncat(buffer, p, sizeof(buffer) - strlen(buffer) - 1);
                 s = buffer;
                 sprintf(value_buf+strlen(value_buf), "\
 <TEXTAREA NAME=\"%s\" COLS=30 ROWS=%d>%s</TEXTAREA><BR>\n",
                     ti->ti_attrname, line + 1, s);
             } else {
                 if (line++ > 0)
-                    strcat(buffer, ((list || table) && !oneline) ?  "<BR>\n" : 
-                        (vcard ? ";" : ", "));
-                strcat(value_buf, buffer);
-                strcat(value_buf, p);
+                    strncat(buffer, ((list || table) && !oneline) ?  "<BR>\n" : 
+			    (vcard ? ";" : ", "),
+			    sizeof(buffer) - strlen(buffer) - 1);
+                strncat(value_buf, buffer, sizeof(buffer) - strlen(buffer) - 1);
+                strncat(value_buf, p, sizeof(buffer) - strlen(buffer) - 1);
             }
             break;
 
@@ -838,15 +850,15 @@ web500gw_vals2html (
 
             /* ??? 
             if (addform && 
-                (strncmp(vals[i], "edit:", 5) == 0 ||
-                 strncmp(vals[i], "change:", 7) == 0)) {
-                 outval = vals[i];
+                (strncmp(vals[i]->bv_val, "edit:", 5) == 0 ||
+                 strncmp(vals[i]->bv_val, "change:", 7) == 0)) {
+                 outval = vals[i]->bv_val;
             } else {
             */
             if (addform || form)
-                outval = vals[i];
+                outval = vals[i]->bv_val;
             else
-                outval = toupper(*vals[i]) == 'T' ? MSG_TRUE : MSG_FALSE;
+                outval = toupper(*vals[i]->bv_val) == 'T' ? MSG_TRUE : MSG_FALSE;
 
             ++writeoutval;
             break;
@@ -901,7 +913,7 @@ web500gw_vals2html (
 %s: <INPUT NAME=\"ext\" SIZE=\"%d\" VALUE=\"%s\"><BR>\n",
                     MSG_URL, ti->ti_attrname, 35, p, MSG_URL_INFO, 35, s);
             } else if (vcard) {
-                strcat(value_buf, p);
+	      strncat(value_buf, p, sizeof(value_buf) - strlen(value_buf) - 1);
             } else {
                 sprintf(value_buf+strlen(value_buf), "<A HREF=\"%s\">%s</A>",
                      p, s);
@@ -917,8 +929,9 @@ web500gw_vals2html (
                     sprintf(buffer+strlen(buffer), "%d", image);
                 image++;
                 if (r->r_browser->b_opts & B_NEEDSUFFIX)
-                    strcat(buffer, r->r_browser->b_opts & B_JPEG ? 
-                                        ".jpg" : ".gif");
+                    strncat(buffer, r->r_browser->b_opts & B_JPEG ? 
+			    ".jpg" : ".gif",
+			    sizeof(buffer) - strlen(buffer) - 1);
 
                 msg_snprintf(value_buf+strlen(value_buf),
                     sizeof(value_buf) - strlen(value_buf), MSG_IMG, "sss",
@@ -1013,13 +1026,13 @@ web500gw_vals2html (
                     /* short values have line breaks in TABLE,
                        but adding NOBR may be dangerous
                 if (strlen(outval) < 0) {
-                    strcat(value_buf, "<NOBR>");
-                    strcat(value_buf, outval);
-                    strcat(value_buf, "</NOBR>");
+                    strncat(value_buf, "<NOBR>", sizeof(value_buf) - strlen(value_buf) - 1);
+                    strncat(value_buf, outval, sizeof(value_buf) - strlen(value_buf) - 1);
+                    strncat(value_buf, "</NOBR>", sizeof(value_buf) - strlen(value_buf) - 1);
                 } else {
                 */
 
-                strcat(value_buf, outval);
+	      strncat(value_buf, outval, sizeof(value_buf) - strlen(value_buf) - 1);
 
                 /* } */
             }
@@ -1075,7 +1088,8 @@ searchaction(
     struct ldap_tmplitem *tip
 )
 {
-    char    **vals, *value, *filtpattern, *attr, *attrs, *flags, *f, *selectname;
+    BerValue **vals;
+    char    *value, *filtpattern, *attr, *attrs, *flags, *f, *selectname;
     char    filter[BUFSIZ], buf[BUFSIZ];
     REQUEST  new_r, *n_r;
     RESPONSE new_resp, *n_resp;
@@ -1141,8 +1155,8 @@ searchaction(
         value = NULL;
     } else if (strcasecmp(attr, "-dn") == 0) {
         value = r->r_dn;
-    } else if ((vals = ldap_get_values(ld, entry, attr)) != NULL) {
-        value = vals[0];
+    } else if ((vals = ldap_get_values_len(ld, entry, attr)) != NULL) {
+        value = vals[0]->bv_val;
     } else {
         value = NULL;
     }
@@ -1153,7 +1167,7 @@ searchaction(
         /* no search level given -> search subtree */
         strcpy(filter, "S=");
     }
-    strcat(filter, buf);
+    strncat(filter, buf, sizeof(filter) - strlen(filter) - 1);
     n_r->r_filter = strdup(filter);
 
     rc = do_search(n_r, n_resp);
